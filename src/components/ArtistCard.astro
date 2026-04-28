@@ -39,7 +39,10 @@ const initials = [artist["First Name"], artist["Last Name"]]
 	<div class="artist-content">
 		<div class="artist-main">
 			<h2>{fullName}</h2>
-			<p class="artist-park">{artist["Home Park"]}</p>
+			<p class="artist-park">
+				{artist["Home Park"]}
+				{artist.Kingdom && <span>{artist.Kingdom}</span>}
+			</p>
 
 			{artist.Awards && <p class="artist-awards">Awards: {artist.Awards}</p>}
 
@@ -98,9 +101,18 @@ const initials = [artist["First Name"], artist["Last Name"]]
 	}
 
 	.artist-park {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem 0.6rem;
 		font-size: 0.95rem;
 		font-weight: 600;
 		color: #204526ff;
+	}
+
+	.artist-park span::before {
+		content: "/";
+		margin-right: 0.6rem;
+		color: #6a7865;
 	}
 
 	.artist-awards,
