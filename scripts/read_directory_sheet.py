@@ -14,6 +14,7 @@ GID = "901559789"  # Directory sheet
 OUTPUT_FILE = BASE_DIR / "src/data/directory.json"
 PHOTOS_DIR = BASE_DIR / "public/photos"
 REMOVED_COLUMNS = {"Promotion", "b"}
+SKILL_COLUMNS = ("Garber Arts", "Dragon Arts", "Owl Arts")
 KINGDOM = "Northern Lights"
 NAMESPACES = {
     "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
@@ -70,6 +71,18 @@ def extract_photos(rows):
     return photo_paths
 
 
+def merge_skills(row):
+    skills = []
+
+    for column in SKILL_COLUMNS:
+        for skill in row.get(column, "").split(","):
+            skill = skill.strip()
+            if skill:
+                skills.append(skill)
+
+    return ", ".join(skills)
+
+
 def read_directory_sheet():
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
     csv_text = download(url).decode("utf-8")
@@ -81,8 +94,9 @@ def read_directory_sheet():
         cleaned_row = {
             key: value
             for key, value in row.items()
-            if key not in REMOVED_COLUMNS
+            if key not in REMOVED_COLUMNS and key not in SKILL_COLUMNS
         }
+        cleaned_row["Skills"] = merge_skills(row)
         cleaned_row["Kingdom"] = KINGDOM
         rows.append(cleaned_row)
 

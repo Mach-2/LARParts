@@ -1,6 +1,34 @@
 ---
-import ArtistCard from "../components/ArtistCard.astro";
 import artists from "../data/directory.json";
+
+function slugify(value: string) {
+	return value
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
+const kingdomMap = new Map<string, number>();
+
+for (const artist of artists) {
+	const kingdom = artist.Kingdom?.trim();
+
+	if (!kingdom) {
+		continue;
+	}
+
+	kingdomMap.set(kingdom, (kingdomMap.get(kingdom) ?? 0) + 1);
+}
+
+const kingdoms = [...kingdomMap.entries()]
+	.map(([name, artistCount]) => ({
+		name,
+		artistCount,
+		href: `/kingdoms/${slugify(name)}/`,
+		image: name === "Northern Lights" ? "/photos/NL_Heraldry1.png" : "",
+	}))
+	.sort((a, b) => a.name.localeCompare(b.name));
 ---
 
 <html lang="en">
@@ -15,15 +43,36 @@ import artists from "../data/directory.json";
 	<body>
 		<main class="page">
 			<section class="hero">
-				<p class="eyebrow">Kingdom of Northern Lights</p>
+				<p class="eyebrow">Amtgard Artisan Directory</p>
 				<h1>Artisan Directory</h1>
 				<p class="intro">
-					Browse artists by park, awards, and craft specialties.
+					Choose a kingdom to browse artists by park, awards, and craft specialties.
 				</p>
 			</section>
 
-			<section class="artist-grid">
-				{artists.map((artist) => <ArtistCard artist={artist} />)}
+			<section class="kingdom-grid" aria-label="Kingdoms">
+				{
+					kingdoms.map((kingdom) => (
+						<a class="kingdom-card" href={kingdom.href}>
+							<div class="kingdom-mark">
+								{kingdom.image ? (
+									<img src={kingdom.image} alt="" loading="lazy" />
+								) : (
+									<span>{kingdom.name.charAt(0)}</span>
+								)}
+							</div>
+
+							<div class="kingdom-content">
+								<p class="card-label">Kingdom</p>
+								<h2>{kingdom.name}</h2>
+								<p>
+									{kingdom.artistCount}{" "}
+									{kingdom.artistCount === 1 ? "artist" : "artists"}
+								</p>
+							</div>
+						</a>
+					))
+				}
 			</section>
 		</main>
 	</body>
@@ -34,8 +83,8 @@ import artists from "../data/directory.json";
 		margin: 0;
 		font-family: Georgia, serif;
 		background:
-			radial-gradient(circle at top, rgba(173, 162, 227, 0.3), transparent 35%),
-			linear-gradient(180deg, #eae8f7ff 0%, #d8d6efff 100%);
+			radial-gradient(circle at top left, rgba(130, 160, 116, 0.28), transparent 34%),
+			linear-gradient(180deg, #f3f0e8 0%, #dce5d8 100%);
 		color: #22202bff;
 	}
 
@@ -69,16 +118,95 @@ import artists from "../data/directory.json";
 		color: #022b09ff;
 	}
 
-	.artist-grid {
+	.kingdom-grid {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 		gap: 1.5rem;
 		max-width: 1200px;
 	}
 
-	@media (max-width: 980px) {
-		.artist-grid {
-			grid-template-columns: 1fr;
+	.kingdom-card {
+		display: grid;
+		grid-template-columns: 88px minmax(0, 1fr);
+		align-items: center;
+		min-height: 148px;
+		padding: 1.25rem;
+		color: inherit;
+		text-decoration: none;
+		background: rgba(255, 255, 255, 0.86);
+		border: 1px solid #102e19ff;
+		border-radius: 8px;
+		box-shadow: 0 10px 30px rgba(37, 36, 46, 0.08);
+		transition:
+			transform 160ms ease,
+			box-shadow 160ms ease,
+			border-color 160ms ease;
+	}
+
+	.kingdom-card:hover,
+	.kingdom-card:focus-visible {
+		transform: translateY(-3px);
+		border-color: #35633b;
+		box-shadow: 0 16px 36px rgba(37, 36, 46, 0.14);
+	}
+
+	.kingdom-card:focus-visible {
+		outline: 3px solid #7b9f69;
+		outline-offset: 4px;
+	}
+
+	.kingdom-mark {
+		width: 72px;
+		height: 88px;
+		display: grid;
+		place-items: center;
+	}
+
+	.kingdom-mark img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	.kingdom-mark span {
+		font-size: 2.25rem;
+		font-weight: 700;
+		color: #204526ff;
+	}
+
+	.kingdom-content {
+		min-width: 0;
+	}
+
+	.card-label {
+		margin: 0 0 0.4rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.75rem;
+		color: #315438;
+	}
+
+	.kingdom-content h2 {
+		margin: 0 0 0.45rem;
+		font-size: 1.45rem;
+		line-height: 1.15;
+	}
+
+	.kingdom-content p:last-child {
+		margin: 0;
+		color: #204526ff;
+		font-size: 0.98rem;
+	}
+
+	@media (max-width: 560px) {
+		.kingdom-card {
+			grid-template-columns: 64px minmax(0, 1fr);
+			padding: 1rem;
+		}
+
+		.kingdom-mark {
+			width: 52px;
+			height: 64px;
 		}
 	}
 </style>

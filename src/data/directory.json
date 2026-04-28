@@ -4,95 +4,109 @@
     "Last Name": "Darkstar",
     "Home Park": "Shrouding Mist",
     "Awards": "",
-    "Garber Arts": "Tablet/Inkle Weaving, Sewing,",
-    "Dragon Arts": "Viking Wire Weaving",
-    "Owl Arts": "",
     "Member Since": "Discord: Adenadarkstar",
     "Photo": "webpage/public/photos/Adena_Darkstar.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Tablet/Inkle Weaving, Sewing, Viking Wire Weaving"
   },
   {
     "First Name": "Aera",
     "Last Name": "Leyric",
     "Home Park": "Seaside Keep",
     "Awards": "Master Garber",
-    "Garber Arts": "Sewing, Applique, Crochet,",
-    "Dragon Arts": "Knitting, Weaving, Yarn Spinning",
-    "Owl Arts": "",
     "Member Since": "Discord: .mach2",
     "Photo": "webpage/public/photos/Aera_Leyric.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Sewing, Applique, Crochet, Knitting, Weaving, Yarn Spinning"
   },
   {
     "First Name": "Dartz",
     "Last Name": "Arrowfox",
     "Home Park": "Greenwood Keep",
     "Awards": "Master Dragon",
-    "Garber Arts": "Chainmail,",
-    "Dragon Arts": "Writing, Drawing, Singing",
-    "Owl Arts": "",
     "Member Since": "Insta: chainedartz",
     "Photo": "webpage/public/photos/Dartz_Arrowfox.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Chainmail, Writing, Drawing, Singing"
   },
   {
     "First Name": "Ritter Mithius",
     "Last Name": "Silverbow",
     "Home Park": "Mithril Hills",
     "Awards": "Serpent Knight",
-    "Garber Arts": "Sewing, Leatherwork, Jewelry, Chainmail,",
-    "Dragon Arts": "Cooking, Painting, Drawing, Sculpting,",
-    "Owl Arts": "Weapons, Armor",
     "Member Since": "Player Since 2003",
     "Photo": "webpage/public/photos/Ritter_Mithius_Silverbow.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Sewing, Leatherwork, Jewelry, Chainmail, Cooking, Painting, Drawing, Sculpting, Weapons, Armor"
   },
   {
     "First Name": "Possum",
     "Last Name": "",
     "Home Park": "Lost Cove",
     "Awards": "",
-    "Garber Arts": "Sewing, Crochet, ",
-    "Dragon Arts": "Digital Art, 2D Art, Painting, ",
-    "Owl Arts": "Shrinky Dink Charms",
     "Member Since": "Player Since 2025",
     "Photo": "webpage/public/photos/Possum.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Sewing, Crochet, Digital Art, 2D Art, Painting, Shrinky Dink Charms"
   },
   {
     "First Name": "Fen",
     "Last Name": "",
     "Home Park": "Lost Cove",
     "Awards": "",
-    "Garber Arts": "Leatherwork, ",
-    "Dragon Arts": "Painting, SFX Makeup,",
-    "Owl Arts": "Props",
     "Member Since": "Insta: ayla_makes_things",
     "Photo": "webpage/public/photos/Fen.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Leatherwork, Painting, SFX Makeup, Props"
   },
   {
     "First Name": "Thorfin",
     "Last Name": "Hillbreaker",
     "Home Park": "Greenwood Keep",
     "Awards": "Master Owl",
-    "Garber Arts": "Sewing, Leatherwork,",
-    "Dragon Arts": "Scroll Work,",
-    "Owl Arts": "Armor",
     "Member Since": "Tiktok: shyguyleather",
     "Photo": "webpage/public/photos/Thorfin_Hillbreaker.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Sewing, Leatherwork, Scroll Work, Armor"
   },
   {
     "First Name": "Kanphuzian",
     "Last Name": "Duskwalker",
     "Home Park": "Shrouding Mist",
     "Awards": "Serpent Knight",
-    "Garber Arts": "Sewing, Leatherwork,",
-    "Dragon Arts": "Scroll Work, Cooking, Baking, ",
-    "Owl Arts": "Weapons, Armor",
     "Member Since": "Player Since 2003",
     "Photo": "webpage/public/photos/Kanphuzian_Duskwalker.jpg",
-    "Kingdom": "Northern Lights"
+    "Kingdom": "Northern Lights",
+    "Skills": "Sewing, Leatherwork, Scroll Work, Cooking, Baking, Weapons, Armor"
+  },
+  {
+    "First Name": "Player",
+    "Last Name": "McPlayerFace",
+    "Home Park": "Goose Gulf",
+    "Awards": "",
+    "Member Since": "Placeholder profile",
+    "Photo": "",
+    "Kingdom": "Placeholder Kingdom",
+    "Skills": "Weaving, Sewing, Embroidery"
+  },
+  {
+    "First Name": "Sample",
+    "Last Name": "Smith",
+    "Home Park": "Moose Meadows",
+    "Awards": "Master Owl",
+    "Member Since": "Placeholder profile",
+    "Photo": "",
+    "Kingdom": "Placeholder Kingdom",
+    "Skills": "Leatherwork, Metalwork, Armor"
+  },
+  {
+    "First Name": "Demo",
+    "Last Name": "Dave",
+    "Home Park": "Bear Barony",
+    "Awards": "",
+    "Member Since": "Placeholder profile",
+    "Photo": "",
+    "Kingdom": "Placeholder Kingdom",
+    "Skills": "Painting, Drawing, Scroll Work"
   }
 ]

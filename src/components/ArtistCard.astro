@@ -5,9 +5,7 @@ interface Props {
 		"Last Name": string;
 		"Home Park": string;
 		Awards: string;
-		"Garber Arts": string;
-		"Dragon Arts": string;
-		"Owl Arts": string;
+		Skills: string;
 		"Member Since": string;
 		Photo: string;
 		Kingdom: string;
@@ -20,20 +18,23 @@ const fullName = `${artist["First Name"]} ${artist["Last Name"]}`.trim();
 const normalizedPhotoPath = artist.Photo
 	.replace(/^webpage\/public\//, "")
 	.replace(/^\/+/, "");
-const photoSrc = `/${normalizedPhotoPath}`;
-const specialties = [
-	artist["Garber Arts"],
-	artist["Dragon Arts"],
-	artist["Owl Arts"],
-]
-	.flatMap((value) => value.split(","))
-	.map((value) => value.trim())
+const photoSrc = normalizedPhotoPath ? `/${normalizedPhotoPath}` : "";
+const initials = [artist["First Name"], artist["Last Name"]]
+	.map((name) => name.trim().charAt(0))
 	.filter(Boolean)
-	.join(", ");
+	.join("");
 ---
 
 <article class="artist-card">
-	<img class="artist-photo" src={photoSrc} alt={fullName} loading="lazy" />
+	{
+		photoSrc ? (
+			<img class="artist-photo" src={photoSrc} alt={fullName} loading="lazy" />
+		) : (
+			<div class="artist-photo artist-photo-placeholder" aria-hidden="true">
+				{initials}
+			</div>
+		)
+	}
 
 	<div class="artist-content">
 		<div class="artist-main">
@@ -42,7 +43,7 @@ const specialties = [
 
 			{artist.Awards && <p class="artist-awards">Awards: {artist.Awards}</p>}
 
-			{specialties && <p class="artist-specialties">{specialties}</p>}
+			{artist.Skills && <p class="artist-specialties">{artist.Skills}</p>}
 		</div>
 
 		{artist["Member Since"] && <p class="artist-note">{artist["Member Since"]}</p>}
@@ -68,6 +69,14 @@ const specialties = [
 		min-height: 190px;
 		object-fit: cover;
 		background: #d6d4e9ff;
+	}
+
+	.artist-photo-placeholder {
+		display: grid;
+		place-items: center;
+		font-size: 2rem;
+		font-weight: 700;
+		color: #204526ff;
 	}
 
 	.artist-content {

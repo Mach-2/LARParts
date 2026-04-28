@@ -1,0 +1,113 @@
+---
+import ArtistCard from "../../components/ArtistCard.astro";
+import artists from "../../data/directory.json";
+
+export function getStaticPaths() {
+	const slugify = (value: string) =>
+		value
+			.toLowerCase()
+			.trim()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-|-$/g, "");
+	const kingdoms = [...new Set(artists.map((artist) => artist.Kingdom).filter(Boolean))];
+
+	return kingdoms.map((kingdom) => ({
+		params: { kingdom: slugify(kingdom) },
+		props: { kingdom },
+	}));
+}
+
+const { kingdom } = Astro.props;
+const kingdomArtists = artists.filter((artist) => artist.Kingdom === kingdom);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{kingdom} Artisan Directory</title>
+	</head>
+	<body>
+		<main class="page">
+			<a class="back-link" href="/">Back to kingdoms</a>
+
+			<section class="hero">
+				<p class="eyebrow">Kingdom of {kingdom}</p>
+				<h1>Artisan Directory</h1>
+				<p class="intro">
+					Browse artists by park, awards, and craft specialties.
+				</p>
+			</section>
+
+			<section class="artist-grid" aria-label={`${kingdom} artists`}>
+				{kingdomArtists.map((artist) => <ArtistCard artist={artist} />)}
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	:global(body) {
+		margin: 0;
+		font-family: Georgia, serif;
+		background:
+			radial-gradient(circle at top left, rgba(130, 160, 116, 0.28), transparent 34%),
+			linear-gradient(180deg, #f3f0e8 0%, #dce5d8 100%);
+		color: #22202bff;
+	}
+
+	.page {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 2rem 1.25rem 4rem;
+	}
+
+	.back-link {
+		display: inline-block;
+		margin-bottom: 2rem;
+		color: #204526ff;
+		font-weight: 700;
+		text-decoration-thickness: 0.08em;
+		text-underline-offset: 0.2em;
+	}
+
+	.hero {
+		margin-bottom: 2rem;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.85rem;
+		color: #042f0fff;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.25rem, 4vw, 4rem);
+	}
+
+	.intro {
+		max-width: 45rem;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: #022b09ff;
+	}
+
+	.artist-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		max-width: 1200px;
+	}
+
+	@media (max-width: 980px) {
+		.artist-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
