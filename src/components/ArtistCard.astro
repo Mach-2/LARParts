@@ -1,0 +1,122 @@
+---
+interface Props {
+	artist: {
+		"First Name": string;
+		"Last Name": string;
+		"Home Park": string;
+		Awards: string;
+		"Garber Arts": string;
+		"Dragon Arts": string;
+		"Owl Arts": string;
+		"Member Since": string;
+		Photo: string;
+		Kingdom: string;
+	};
+}
+
+const { artist } = Astro.props;
+
+const fullName = `${artist["First Name"]} ${artist["Last Name"]}`.trim();
+const normalizedPhotoPath = artist.Photo
+	.replace(/^webpage\/public\//, "")
+	.replace(/^\/+/, "");
+const photoSrc = `/${normalizedPhotoPath}`;
+const specialties = [
+	artist["Garber Arts"],
+	artist["Dragon Arts"],
+	artist["Owl Arts"],
+]
+	.flatMap((value) => value.split(","))
+	.map((value) => value.trim())
+	.filter(Boolean)
+	.join(", ");
+---
+
+<article class="artist-card">
+	<img class="artist-photo" src={photoSrc} alt={fullName} loading="lazy" />
+
+	<div class="artist-content">
+		<div class="artist-main">
+			<h2>{fullName}</h2>
+			<p class="artist-park">{artist["Home Park"]}</p>
+
+			{artist.Awards && <p class="artist-awards">Awards: {artist.Awards}</p>}
+
+			{specialties && <p class="artist-specialties">{specialties}</p>}
+		</div>
+
+		{artist["Member Since"] && <p class="artist-note">{artist["Member Since"]}</p>}
+	</div>
+</article>
+
+<style>
+	.artist-card {
+		display: flex;
+		flex-direction: row;
+		align-items: stretch;
+		background: white;
+		border: 1px solid #102e19ff;
+		border-radius: 1rem;
+		overflow: hidden;
+		box-shadow: 0 10px 30px rgba(37, 36, 46, 0.08);
+	}
+
+	.artist-photo {
+		width: 180px;
+		flex: 0 0 180px;
+		height: 100%;
+		min-height: 190px;
+		object-fit: cover;
+		background: #d6d4e9ff;
+	}
+
+	.artist-content {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 1rem 1.1rem;
+		text-align: left;
+	}
+
+	.artist-content h2 {
+		margin: 0 0 0.35rem;
+		font-size: 1.2rem;
+	}
+
+	.artist-main > p {
+		margin: 0 0 0.75rem;
+	}
+
+	.artist-park {
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: #204526ff;
+	}
+
+	.artist-awards,
+	.artist-specialties {
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+
+	.artist-note {
+		margin: 0.75rem 0 0;
+		text-align: right;
+		font-size: 0.9rem;
+		color: #204526ff;
+	}
+
+	@media (max-width: 560px) {
+		.artist-card {
+			flex-direction: column;
+		}
+
+		.artist-photo {
+			width: 100%;
+			flex-basis: auto;
+			height: 240px;
+			min-height: 0;
+		}
+	}
+</style>

@@ -1,5 +1,6 @@
 ---
-
+import ArtistCard from "../components/ArtistCard.astro";
+import artists from "../data/directory.json";
 ---
 
 <html lang="en">
@@ -9,9 +10,75 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Northern Lights Artisan Directory</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<main class="page">
+			<section class="hero">
+				<p class="eyebrow">Kingdom of Northern Lights</p>
+				<h1>Artisan Directory</h1>
+				<p class="intro">
+					Browse artists by park, awards, and craft specialties.
+				</p>
+			</section>
+
+			<section class="artist-grid">
+				{artists.map((artist) => <ArtistCard artist={artist} />)}
+			</section>
+		</main>
 	</body>
 </html>
+
+<style>
+	:global(body) {
+		margin: 0;
+		font-family: Georgia, serif;
+		background:
+			radial-gradient(circle at top, rgba(173, 162, 227, 0.3), transparent 35%),
+			linear-gradient(180deg, #eae8f7ff 0%, #d8d6efff 100%);
+		color: #22202bff;
+	}
+
+	.page {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 4rem;
+	}
+
+	.hero {
+		margin-bottom: 2rem;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.85rem;
+		color: #042f0fff;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.25rem, 4vw, 4rem);
+	}
+
+	.intro {
+		max-width: 45rem;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: #022b09ff;
+	}
+
+	.artist-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		max-width: 1200px;
+	}
+
+	@media (max-width: 980px) {
+		.artist-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
