@@ -1,0 +1,25 @@
+:root {
+	--font-body: Georgia, serif;
+
+	--color-page-glow: rgba(106, 166, 216, 0.24);
+	--color-page-top: #f6f9fc;
+	--color-page-bottom: #e7eef6;
+	--color-text: #172033;
+	--color-muted: #526274;
+
+	--color-card: #ffffff;
+	--color-card-strong: rgba(255, 255, 255, 0.96);
+	--color-card-soft: rgba(255, 255, 255, 0.9);
+	--color-border: #c8d6e5;
+
+	--color-primary: #1f4e79;
+	--color-accent: #6aa6d8;
+	--color-accent-dark: #365f7d;
+	--color-divider: #526274;
+	--color-mark-bg: #dce8f3;
+	--color-mark-border: rgba(31, 78, 121, 0.22);
+
+	--shadow-card: rgba(23, 32, 51, 0.1);
+	--shadow-featured: rgba(23, 32, 51, 0.12);
+	--shadow-hover: rgba(23, 32, 51, 0.14);
+}
