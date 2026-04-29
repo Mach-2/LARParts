@@ -1,0 +1,12 @@
+
+> webpage@0.0.1 dev
+> astro dev --host 127.0.0.1 --port 4321
+
+[vite] connected.
+[2m23:15:50[22m [34m[types][39m Generated [2m4ms[22m
+[33m[1m23:15:50[22m [WARN] [content][39m Content config not loaded
+[2m23:15:50[22m [34m[vite][39m Port 4321 is in use, trying another one...
+[2m23:15:50[22m [34m[vite][39m Port 4322 is in use, trying another one...
+[42m[1m astro [22m[49m [32mv6.1.9[39m [2mready in[22m 3297 [2mms[22m
+[2m┃[22m Local    [36mhttp://127.0.0.1:4323/[39m
+[2m23:15:50[22m [32mwatching for file changes...[39m
