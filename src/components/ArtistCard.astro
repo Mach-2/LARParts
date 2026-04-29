@@ -58,11 +58,11 @@ const initials = [artist["First Name"], artist["Last Name"]]
 		display: flex;
 		flex-direction: row;
 		align-items: stretch;
-		background: #fffdf6;
-		border: 1px solid #d3c39a;
+		background: var(--color-card);
+		border: 1px solid var(--color-border);
 		border-radius: 1rem;
 		overflow: hidden;
-		box-shadow: 0 10px 30px rgba(30, 43, 32, 0.12);
+		box-shadow: 0 10px 30px var(--shadow-card);
 	}
 
 	.artist-photo {
@@ -71,7 +71,7 @@ const initials = [artist["First Name"], artist["Last Name"]]
 		height: 100%;
 		min-height: 190px;
 		object-fit: cover;
-		background: #e6dcc0;
+		background: var(--color-mark-bg);
 	}
 
 	.artist-photo-placeholder {
@@ -79,7 +79,7 @@ const initials = [artist["First Name"], artist["Last Name"]]
 		place-items: center;
 		font-size: 2rem;
 		font-weight: 700;
-		color: #1f4d3a;
+		color: var(--color-primary);
 	}
 
 	.artist-content {
@@ -106,13 +106,13 @@ const initials = [artist["First Name"], artist["Last Name"]]
 		gap: 0.35rem 0.6rem;
 		font-size: 0.95rem;
 		font-weight: 600;
-		color: #1f4d3a;
+		color: var(--color-primary);
 	}
 
 	.artist-park span::before {
 		content: "—";
 		margin-right: 0.6rem;
-		color: #746646;
+		color: var(--color-divider);
 	}
 
 	.artist-awards,
@@ -125,7 +125,7 @@ const initials = [artist["First Name"], artist["Last Name"]]
 		margin: 0.75rem 0 0;
 		text-align: right;
 		font-size: 0.9rem;
-		color: #8a671a;
+		color: var(--color-accent-dark);
 	}
 
 	@media (max-width: 560px) {

@@ -1,6 +1,7 @@
 ---
 import ArtistCard from "../components/ArtistCard.astro";
 import artists from "../data/directory.json";
+import "../styles/theme.css";
 
 const directoryArtists = [...artists].sort((a, b) => {
 	const lastName = a["Last Name"].localeCompare(b["Last Name"]);
@@ -39,11 +40,11 @@ const directoryArtists = [...artists].sort((a, b) => {
 <style>
 	:global(body) {
 		margin: 0;
-		font-family: Georgia, serif;
+		font-family: var(--font-body);
 		background:
-			radial-gradient(circle at top left, rgba(201, 154, 46, 0.28), transparent 36%),
-			linear-gradient(180deg, #fbf7ed 0%, #e8ead8 100%);
-		color: #1c241d;
+			radial-gradient(circle at top left, var(--color-page-glow), transparent 36%),
+			linear-gradient(180deg, var(--color-page-top) 0%, var(--color-page-bottom) 100%);
+		color: var(--color-text);
 	}
 
 	.page {
@@ -55,7 +56,7 @@ const directoryArtists = [...artists].sort((a, b) => {
 	.back-link {
 		display: inline-block;
 		margin-bottom: 2rem;
-		color: #1f4d3a;
+		color: var(--color-primary);
 		font-weight: 700;
 		text-decoration-thickness: 0.08em;
 		text-underline-offset: 0.2em;
@@ -70,7 +71,7 @@ const directoryArtists = [...artists].sort((a, b) => {
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 		font-size: 0.85rem;
-		color: #8a671a;
+		color: var(--color-accent-dark);
 	}
 
 	h1 {
@@ -82,7 +83,7 @@ const directoryArtists = [...artists].sort((a, b) => {
 		max-width: 45rem;
 		font-size: 1.05rem;
 		line-height: 1.6;
-		color: #5e6758;
+		color: var(--color-muted);
 	}
 
 	.artist-grid {
