@@ -1,25 +1,25 @@
 :root {
 	--font-body: Georgia, serif;
 
-	--color-page-glow: rgba(201, 154, 46, 0.28);
-	--color-page-top: #fbf7ed;
-	--color-page-bottom: #e8ead8;
-	--color-text: #1c241d;
-	--color-muted: #5e6758;
+	--color-page-glow: rgba(69, 125, 94, 0.22);
+	--color-page-top: #f4f7f1;
+	--color-page-bottom: #dfe8dc;
+	--color-text: #18251d;
+	--color-muted: #536655;
 
-	--color-card: #fffdf6;
-	--color-card-strong: rgba(255, 253, 246, 0.96);
-	--color-card-soft: rgba(255, 253, 246, 0.9);
-	--color-border: #d3c39a;
+	--color-card: #fffffb;
+	--color-card-strong: rgba(255, 255, 251, 0.96);
+	--color-card-soft: rgba(255, 255, 251, 0.9);
+	--color-border: #c5d0bd;
 
-	--color-primary: #1f4d3a;
-	--color-accent: #c99a2e;
-	--color-accent-dark: #8a671a;
-	--color-divider: #746646;
-	--color-mark-bg: #e6dcc0;
-	--color-mark-border: rgba(31, 77, 58, 0.22);
+	--color-primary: #174832;
+	--color-accent: #6f8f4f;
+	--color-accent-dark: #3f6f4b;
+	--color-divider: #74806d;
+	--color-mark-bg: #dbe7d4;
+	--color-mark-border: rgba(23, 72, 50, 0.22);
 
-	--shadow-card: rgba(30, 43, 32, 0.12);
-	--shadow-featured: rgba(30, 43, 32, 0.14);
-	--shadow-hover: rgba(30, 43, 32, 0.16);
+	--shadow-card: rgba(24, 37, 29, 0.1);
+	--shadow-featured: rgba(24, 37, 29, 0.12);
+	--shadow-hover: rgba(24, 37, 29, 0.15);
 }
