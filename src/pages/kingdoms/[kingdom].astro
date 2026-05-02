@@ -20,6 +20,19 @@ export function getStaticPaths() {
 
 const { kingdom } = Astro.props;
 const kingdomArtists = artists.filter((artist) => artist.Kingdom === kingdom);
+const parks = [
+	...new Set(kingdomArtists.map((artist) => artist["Home Park"]).filter(Boolean)),
+].sort((a, b) => a.localeCompare(b));
+const titleFilters = ["Serpent Knight", "Master Dragon", "Master Owl", "Master Garber"];
+const skills = [
+	...new Set(
+		kingdomArtists.flatMap((artist) =>
+			artist.Skills.split(",")
+				.map((skill) => skill.trim())
+				.filter(Boolean),
+		),
+	),
+].sort((a, b) => a.localeCompare(b));
 ---
 
 <html lang="en">
@@ -39,14 +52,197 @@ const kingdomArtists = artists.filter((artist) => artist.Kingdom === kingdom);
 				<p class="eyebrow">Kingdom of {kingdom}</p>
 				<h1>Artisan Directory</h1>
 				<p class="intro">
-					Browse artists by park, awards, and craft specialties.
+					Browse artists by park, titles, and craft specialties.
 				</p>
 			</section>
+
+			<section class="filter-panel" aria-label={`Filter ${kingdom} artists`}>
+				<div class="filter-field">
+					<label for="artist-search">Search</label>
+					<input id="artist-search" type="search" placeholder="Name, skill, park" data-filter-search />
+				</div>
+
+				<div class="filter-field">
+					<label for="park-filter">Park</label>
+					<select id="park-filter" data-filter-park>
+						<option value="">All parks</option>
+						{parks.map((park) => <option value={park}>{park}</option>)}
+					</select>
+				</div>
+
+				<div class="filter-field">
+					<label for="title-filter">Titles</label>
+					<select id="title-filter" data-filter-title>
+						<option value="">All titles</option>
+						{titleFilters.map((title) => <option value={title.toLowerCase()}>{title}</option>)}
+					</select>
+				</div>
+
+				<div class="skill-picker" data-skill-picker>
+					<div class="filter-field">
+						<label for="skill-picker-input">Skills</label>
+						<input id="skill-picker-input" type="search" placeholder="Type to add skills" autocomplete="off" data-filter-skill-input />
+					</div>
+
+					<div class="skill-suggestions" data-skill-suggestions hidden>
+						{
+							skills.map((skill) => (
+								<button type="button" value={skill.toLowerCase()} data-skill-suggestion>
+									{skill}
+								</button>
+							))
+						}
+					</div>
+
+					<div class="skill-chips" data-skill-chips hidden></div>
+				</div>
+			</section>
+
+			<p class="filter-count" data-filter-count>
+				Showing {kingdomArtists.length} {kingdomArtists.length === 1 ? "artist" : "artists"}
+			</p>
+
+			<p class="empty-state" data-empty-state hidden>
+				No artists match those filters.
+			</p>
 
 			<section class="artist-grid" aria-label={`${kingdom} artists`}>
 				{kingdomArtists.map((artist) => <ArtistCard artist={artist} />)}
 			</section>
 		</main>
+
+		<script>
+			const cards = Array.from(document.querySelectorAll("[data-artist-card]"));
+			const searchInput = document.querySelector("[data-filter-search]");
+			const parkSelect = document.querySelector("[data-filter-park]");
+			const titleSelect = document.querySelector("[data-filter-title]");
+			const skillPicker = document.querySelector("[data-skill-picker]");
+			const skillInput = document.querySelector("[data-filter-skill-input]");
+			const skillSuggestionList = document.querySelector("[data-skill-suggestions]");
+			const skillSuggestionButtons = Array.from(document.querySelectorAll("[data-skill-suggestion]"));
+			const skillChips = document.querySelector("[data-skill-chips]");
+			const countText = document.querySelector("[data-filter-count]");
+			const emptyState = document.querySelector("[data-empty-state]");
+			let selectedSkills = [];
+
+			function getSkillLabel(value) {
+				const button = skillSuggestionButtons.find((suggestion) => suggestion.value === value);
+				return button?.textContent.trim() ?? value;
+			}
+
+			function renderSkillSuggestions() {
+				const skillQuery = skillInput.value.trim().toLowerCase();
+				let visibleCount = 0;
+
+				for (const button of skillSuggestionButtons) {
+					const isSelected = selectedSkills.includes(button.value);
+					const isMatch = Boolean(skillQuery) && button.textContent.toLowerCase().includes(skillQuery);
+					const isVisible = isMatch && !isSelected && visibleCount < 8;
+
+					button.hidden = !isVisible;
+					if (isVisible) {
+						visibleCount += 1;
+					}
+				}
+
+				skillSuggestionList.hidden = visibleCount === 0;
+			}
+
+			function renderSkillChips() {
+				skillChips.replaceChildren();
+				skillChips.hidden = selectedSkills.length === 0;
+
+				for (const skill of selectedSkills) {
+					const chip = document.createElement("button");
+					chip.type = "button";
+					chip.className = "skill-chip";
+					chip.dataset.removeSkill = skill;
+					chip.textContent = `${getSkillLabel(skill)} x`;
+					skillChips.append(chip);
+				}
+			}
+
+			function addSkill(skill) {
+				if (!skill || selectedSkills.includes(skill)) {
+					return;
+				}
+
+				selectedSkills = [...selectedSkills, skill];
+				skillInput.value = "";
+				updateArtists();
+			}
+
+			function removeSkill(skill) {
+				selectedSkills = selectedSkills.filter((selectedSkill) => selectedSkill !== skill);
+				updateArtists();
+			}
+
+			function updateArtists() {
+				const query = searchInput.value.trim().toLowerCase();
+				const park = parkSelect.value;
+				const title = titleSelect.value;
+				let visibleCount = 0;
+
+				for (const card of cards) {
+					const matchesSearch = !query || card.dataset.search.includes(query);
+					const matchesPark = !park || card.dataset.park === park;
+					const matchesTitle = !title || card.dataset.awards.includes(title);
+					const matchesSkills =
+						selectedSkills.length === 0 ||
+						selectedSkills.some((skill) => card.dataset.skills.includes(skill));
+					const isVisible = matchesSearch && matchesPark && matchesTitle && matchesSkills;
+
+					card.hidden = !isVisible;
+					if (isVisible) {
+						visibleCount += 1;
+					}
+				}
+
+				countText.textContent = `Showing ${visibleCount} ${visibleCount === 1 ? "artist" : "artists"}`;
+				emptyState.hidden = visibleCount !== 0;
+				renderSkillChips();
+				renderSkillSuggestions();
+			}
+
+			for (const control of [searchInput, parkSelect, titleSelect]) {
+				control.addEventListener("input", updateArtists);
+				control.addEventListener("change", updateArtists);
+			}
+
+			skillInput.addEventListener("input", renderSkillSuggestions);
+			skillInput.addEventListener("focus", renderSkillSuggestions);
+			skillInput.addEventListener("keydown", (event) => {
+				if (event.key !== "Enter") {
+					return;
+				}
+
+				const firstSuggestion = skillSuggestionButtons.find((button) => !button.hidden);
+				if (firstSuggestion) {
+					event.preventDefault();
+					addSkill(firstSuggestion.value);
+				}
+			});
+
+			skillSuggestionList.addEventListener("click", (event) => {
+				const button = event.target.closest("[data-skill-suggestion]");
+				if (button) {
+					addSkill(button.value);
+				}
+			});
+
+			skillChips.addEventListener("click", (event) => {
+				const button = event.target.closest("[data-remove-skill]");
+				if (button) {
+					removeSkill(button.dataset.removeSkill);
+				}
+			});
+
+			document.addEventListener("click", (event) => {
+				if (!skillPicker.contains(event.target)) {
+					skillSuggestionList.hidden = true;
+				}
+			});
+		</script>
 	</body>
 </html>
 

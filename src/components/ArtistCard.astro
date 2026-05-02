@@ -23,9 +23,29 @@ const initials = [artist["First Name"], artist["Last Name"]]
 	.map((name) => name.trim().charAt(0))
 	.filter(Boolean)
 	.join("");
+const searchableText = [
+	fullName,
+	artist["Home Park"],
+	artist.Kingdom,
+	artist.Awards,
+	artist.Skills,
+	artist["Member Since"],
+]
+	.join(" ")
+	.toLowerCase();
+const normalizedAwards = artist.Awards.toLowerCase();
+const normalizedSkills = artist.Skills.toLowerCase();
 ---
 
-<article class="artist-card">
+<article
+	class="artist-card"
+	data-artist-card
+	data-search={searchableText}
+	data-kingdom={artist.Kingdom}
+	data-park={artist["Home Park"]}
+	data-awards={normalizedAwards}
+	data-skills={normalizedSkills}
+>
 	{
 		photoSrc ? (
 			<img class="artist-photo" src={photoSrc} alt={fullName} loading="lazy" />
@@ -44,7 +64,7 @@ const initials = [artist["First Name"], artist["Last Name"]]
 				{artist.Kingdom && <span>{artist.Kingdom}</span>}
 			</p>
 
-			{artist.Awards && <p class="artist-awards">Awards: {artist.Awards}</p>}
+			{artist.Awards && <p class="artist-awards">Titles: {artist.Awards}</p>}
 
 			{artist.Skills && <p class="artist-specialties">{artist.Skills}</p>}
 		</div>
