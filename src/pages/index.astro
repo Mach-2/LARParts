@@ -1,4 +1,5 @@
 ---
+import SiteHeader from "../components/SiteHeader.astro";
 import artists from "../data/directory.json";
 import "../styles/theme.css";
 
@@ -45,6 +46,8 @@ const artistCount = artists.length;
 		<title>Northern Lights Artisan Directory</title>
 	</head>
 	<body>
+		<SiteHeader current="directory" />
+
 		<main class="page">
 			<section class="hero">
 				<p class="eyebrow">Amtgard Artisan Directory</p>

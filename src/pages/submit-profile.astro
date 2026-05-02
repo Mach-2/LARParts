@@ -1,0 +1,107 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/theme.css";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Submit your profile | Northern Lights Artisan Directory</title>
+	</head>
+	<body>
+		<SiteHeader current="submit" />
+
+		<main class="page">
+			<section class="hero">
+				<p class="eyebrow">Join the Directory</p>
+				<h1>Submit your profile</h1>
+				<p class="intro">
+					This page will eventually hold the profile submission form for artists
+					who want to be included in the directory.
+				</p>
+			</section>
+
+			<section class="content-panel">
+				<h2>Submission form coming soon</h2>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
+					habitant morbi tristique senectus et netus et malesuada fames ac
+					turpis egestas.
+				</p>
+				<p>
+					Nulla facilisi. Integer sed mauris vitae tortor fermentum luctus.
+					Curabitur at ipsum ac lorem commodo convallis sit amet quis lectus.
+				</p>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	:global(body) {
+		margin: 0;
+		font-family: var(--font-body);
+		background:
+			radial-gradient(circle at top left, var(--color-page-glow), transparent 36%),
+			linear-gradient(180deg, var(--color-page-top) 0%, var(--color-page-bottom) 100%);
+		color: var(--color-text);
+	}
+
+	.page {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 4rem;
+	}
+
+	.hero {
+		margin-bottom: 2rem;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.85rem;
+		color: var(--color-accent-dark);
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.25rem, 4vw, 4rem);
+	}
+
+	.intro {
+		max-width: 45rem;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.content-panel {
+		padding: 1.5rem;
+		background: var(--color-card-soft);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		box-shadow: 0 10px 30px var(--shadow-card);
+	}
+
+	.content-panel h2 {
+		margin: 0 0 0.75rem;
+		font-size: 1.55rem;
+	}
+
+	.content-panel p {
+		margin: 0 0 1rem;
+		color: var(--color-muted);
+		font-size: 1.02rem;
+		line-height: 1.65;
+	}
+
+	.content-panel p:last-child {
+		margin-bottom: 0;
+	}
+</style>

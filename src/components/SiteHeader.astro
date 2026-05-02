@@ -1,0 +1,32 @@
+---
+type NavKey = "directory" | "about" | "whats-next" | "submit";
+
+interface Props {
+	current: NavKey;
+}
+
+const { current } = Astro.props;
+
+const navItems: Array<{ key: NavKey; label: string; href: string }> = [
+	{ key: "directory", label: "Directory", href: "/" },
+	{ key: "about", label: "About the Project", href: "/about/" },
+	{ key: "whats-next", label: "What's next?", href: "/whats-next/" },
+	{ key: "submit", label: "Submit your profile", href: "/submit-profile/" },
+];
+---
+
+<header class="site-header">
+	<div class="site-header-inner">
+		<a class="site-title" href="/">Artisan Directory</a>
+
+		<nav class="site-tabs" aria-label="Site sections">
+			{
+				navItems.map((item) => (
+					<a href={item.href} aria-current={current === item.key ? "page" : undefined}>
+						{item.label}
+					</a>
+				))
+			}
+		</nav>
+	</div>
+</header>

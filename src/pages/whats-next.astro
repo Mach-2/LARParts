@@ -1,0 +1,127 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/theme.css";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>What's next? | Northern Lights Artisan Directory</title>
+	</head>
+	<body>
+		<SiteHeader current="whats-next" />
+
+		<main class="page">
+			<section class="hero">
+				<p class="eyebrow">Release Teasers</p>
+				<h1>What's next?</h1>
+				<p class="intro">
+					This page will preview upcoming additions planned for the next release
+					of the artisan directory.
+				</p>
+			</section>
+
+			<section class="teaser-grid" aria-label="Upcoming features">
+				<article class="teaser-card">
+					<p class="card-label">Coming Soon</p>
+					<h2>Placeholder Feature</h2>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
+						tempor nibh at turpis pretium, sed luctus justo luctus.
+					</p>
+				</article>
+
+				<article class="teaser-card">
+					<p class="card-label">In Progress</p>
+					<h2>Another Preview</h2>
+					<p>
+						Integer tincidunt magna sed mauris faucibus, sit amet interdum
+						lectus cursus. Duis vitae lorem et mi suscipit gravida.
+					</p>
+				</article>
+
+				<article class="teaser-card">
+					<p class="card-label">On Deck</p>
+					<h2>Future Enhancement</h2>
+					<p>
+						Suspendisse potenti. Nam facilisis lacus nec tellus porttitor, quis
+						volutpat mauris consectetur.
+					</p>
+				</article>
+			</section>
+		</main>
+	</body>
+</html>
+
+<style>
+	:global(body) {
+		margin: 0;
+		font-family: var(--font-body);
+		background:
+			radial-gradient(circle at top left, var(--color-page-glow), transparent 36%),
+			linear-gradient(180deg, var(--color-page-top) 0%, var(--color-page-bottom) 100%);
+		color: var(--color-text);
+	}
+
+	.page {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 4rem;
+	}
+
+	.hero {
+		margin-bottom: 2rem;
+	}
+
+	.eyebrow,
+	.card-label {
+		margin: 0 0 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.85rem;
+		color: var(--color-accent-dark);
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.25rem, 4vw, 4rem);
+	}
+
+	.intro {
+		max-width: 45rem;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.teaser-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.teaser-card {
+		padding: 1.25rem;
+		background: var(--color-card-soft);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		box-shadow: 0 10px 30px var(--shadow-card);
+	}
+
+	.teaser-card h2 {
+		margin: 0 0 0.7rem;
+		font-size: 1.45rem;
+		line-height: 1.15;
+	}
+
+	.teaser-card p:last-child {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 0.98rem;
+		line-height: 1.55;
+	}
+</style>
