@@ -76,6 +76,10 @@
 	margin: 0;
 }
 
+.skill-picker-inline {
+	grid-column: auto;
+}
+
 .skill-suggestions {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
