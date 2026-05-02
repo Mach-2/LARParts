@@ -1,5 +1,7 @@
 ---
 import ArtistCard from "../../components/ArtistCard.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
 import artists from "../../data/directory.json";
 import "../../styles/theme.css";
 
@@ -45,8 +47,15 @@ const skills = [
 		<title>{kingdom} Artisan Directory</title>
 	</head>
 	<body>
+		<SiteHeader current="directory" />
+
 		<main class="page">
-			<a class="back-link" href="/">Back to kingdoms</a>
+			<Breadcrumbs
+				items={[
+					{ label: "Directory", href: "/" },
+					{ label: kingdom },
+				]}
+			/>
 
 			<section class="hero">
 				<p class="eyebrow">Kingdom of {kingdom}</p>
@@ -260,15 +269,6 @@ const skills = [
 		max-width: 1100px;
 		margin: 0 auto;
 		padding: 2rem 1.25rem 4rem;
-	}
-
-	.back-link {
-		display: inline-block;
-		margin-bottom: 2rem;
-		color: var(--color-primary);
-		font-weight: 700;
-		text-decoration-thickness: 0.08em;
-		text-underline-offset: 0.2em;
 	}
 
 	.hero {
