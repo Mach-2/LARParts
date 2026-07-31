@@ -10,48 +10,58 @@ import "../styles/theme.css";
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>What's next? | Northern Lights Artisan Directory</title>
+		<title>What's next? | LARParts Directory</title>
 	</head>
 	<body>
 		<SiteHeader current="whats-next" />
 
 		<main class="page">
 			<section class="hero">
-				<p class="eyebrow">Release Teasers</p>
 				<h1>What's next?</h1>
 				<p class="intro">
-					This page will preview upcoming additions planned for the next release
-					of the artisan directory.
+					LARParts is under active development! Here's a few features to look forward to in future releases:
 				</p>
 			</section>
 
-			<section class="teaser-grid" aria-label="Upcoming features">
-				<article class="teaser-card">
-					<p class="card-label">Coming Soon</p>
-					<h2>Placeholder Feature</h2>
+			<section class="content-panel" aria-label="Upcoming features">
+				<div class="feature">
+					<h2>1. Artist Accounts</h2>
 					<p>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
-						tempor nibh at turpis pretium, sed luctus justo luctus.
+						The next release of LARParts.com will support user accounts for
+						artists. After creating an account, you will be able to sign in
+						with your username and password, and make changes to your artist
+						profile through your account.
 					</p>
-				</article>
+				</div>
 
-				<article class="teaser-card">
-					<p class="card-label">In Progress</p>
-					<h2>Another Preview</h2>
+				<div class="feature">
+					<h2>2. Portfolios</h2>
 					<p>
-						Integer tincidunt magna sed mauris faucibus, sit amet interdum
-						lectus cursus. Duis vitae lorem et mi suscipit gravida.
+						We are developing support for artisans to showcase their
+						work through a portfolio! With the portfolio feature, artists
+						can upload a selection of images to showcase their best work on
+						their profile.
 					</p>
-				</article>
+				</div>
 
-				<article class="teaser-card">
-					<p class="card-label">On Deck</p>
-					<h2>Future Enhancement</h2>
+				<div class="feature">
+					<h2>3. ORK Integration</h2>
 					<p>
-						Suspendisse potenti. Nam facilisis lacus nec tellus porttitor, quis
-						volutpat mauris consectetur.
+						On a future release, we are planning to enable the option of
+						linking your ORK profile to your LARParts profile, allowing
+						their ladder awards to be displayed on their profile.
 					</p>
-				</article>
+				</div>
+
+				<div class="feature">
+					<h2>4. Commission status</h2>
+					<p>
+						On a future release, artisans will be able to toggle whether
+						they are currently accepting commissions, and we are looking into
+						adding opt-in email notifications to inform users when their
+						favourite artists are accepting new commissions!
+					</p>
+				</div>
 			</section>
 		</main>
 	</body>
@@ -98,30 +108,37 @@ import "../styles/theme.css";
 		color: var(--color-muted);
 	}
 
-	.teaser-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-		gap: 1.5rem;
-	}
-
-	.teaser-card {
-		padding: 1.25rem;
+	.content-panel {
+		padding: 1.5rem;
 		background: var(--color-card-soft);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		box-shadow: 0 10px 30px var(--shadow-card);
 	}
 
-	.teaser-card h2 {
-		margin: 0 0 0.7rem;
-		font-size: 1.45rem;
-		line-height: 1.15;
+	.feature {
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--color-border);
 	}
 
-	.teaser-card p:last-child {
+	.feature:first-child {
+		padding-top: 0;
+	}
+
+	.feature:last-child {
+		padding-bottom: 0;
+		border-bottom: 0;
+	}
+
+	.feature h2 {
+		margin: 0 0 0.75rem;
+		font-size: 1.55rem;
+	}
+
+	.feature p {
 		margin: 0;
 		color: var(--color-muted);
-		font-size: 0.98rem;
-		line-height: 1.55;
+		font-size: 1.02rem;
+		line-height: 1.65;
 	}
 </style>
