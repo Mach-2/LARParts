@@ -1,5 +1,6 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
+import kingdoms from "../data/kingdoms.json";
 import "../styles/theme.css";
 ---
 
@@ -20,24 +21,468 @@ import "../styles/theme.css";
 				<p class="eyebrow">Join the Directory</p>
 				<h1>Submit your profile</h1>
 				<p class="intro">
-					This page will eventually hold the profile submission form for artists
-					who want to be included in the directory.
+					Tell us about your art and how people can find your public work. We’ll
+					review your submission before anything appears in the directory.
 				</p>
 			</section>
 
-			<section class="content-panel">
-				<h2>Submission form coming soon</h2>
-				<p>
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
-					habitant morbi tristique senectus et netus et malesuada fames ac
-					turpis egestas.
-				</p>
-				<p>
-					Nulla facilisi. Integer sed mauris vitae tortor fermentum luctus.
-					Curabitur at ipsum ac lorem commodo convallis sit amet quis lectus.
-				</p>
-			</section>
+			<form
+				class="profile-form"
+				action="/.netlify/functions/submit-profile"
+				method="post"
+				data-profile-form
+				novalidate
+			>
+				<div class="form-status" data-form-status data-state="ready" role="status" aria-live="polite" tabindex="-1">
+					<strong data-status-title>Ready to submit</strong>
+					<span data-status-message>Required fields are marked with an asterisk.</span>
+				</div>
+
+				<div class="error-summary" data-error-summary role="alert" tabindex="-1" hidden>
+					<h2>Please check your submission</h2>
+					<ul data-error-list></ul>
+				</div>
+
+				<section class="form-section" aria-labelledby="profile-heading">
+					<div class="section-heading">
+						<h2 id="profile-heading">Public profile</h2>
+						<p>This information may be shown in the artist directory.</p>
+					</div>
+
+					<div class="field-grid">
+						<div class="form-field field-wide">
+							<label for="display-name">Display name <span aria-hidden="true">*</span></label>
+							<input id="display-name" name="displayName" type="text" required minlength="1" maxlength="100" autocomplete="nickname" aria-describedby="display-name-help display-name-error" />
+							<p class="field-help" id="display-name-help">The name visitors should see on your profile.</p>
+							<p class="field-error" id="display-name-error" data-error-for="displayName"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="first-name">First name <span aria-hidden="true">*</span></label>
+							<input id="first-name" name="firstName" type="text" required minlength="1" maxlength="60" autocomplete="given-name" aria-describedby="first-name-error" />
+							<p class="field-error" id="first-name-error" data-error-for="firstName"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="last-name">Last name <span class="optional">(optional)</span></label>
+							<input id="last-name" name="lastName" type="text" maxlength="60" autocomplete="family-name" aria-describedby="last-name-error" />
+							<p class="field-error" id="last-name-error" data-error-for="lastName"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="kingdom">Kingdom <span aria-hidden="true">*</span></label>
+							<select id="kingdom" name="kingdom" required aria-describedby="kingdom-error">
+								<option value="">Choose a kingdom</option>
+								{kingdoms.map((kingdom) => <option value={kingdom.name}>{kingdom.name}</option>)}
+							</select>
+							<p class="field-error" id="kingdom-error" data-error-for="kingdom"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="home-park">Home park <span aria-hidden="true">*</span></label>
+							<input id="home-park" name="homePark" type="text" required minlength="1" maxlength="100" aria-describedby="home-park-error" />
+							<p class="field-error" id="home-park-error" data-error-for="homePark"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="skills">Skills <span aria-hidden="true">*</span></label>
+							<textarea id="skills" name="skills" required maxlength="600" rows="3" aria-describedby="skills-help skills-error"></textarea>
+							<p class="field-help" id="skills-help">Separate skills with commas. Add up to 20.</p>
+							<p class="field-error" id="skills-error" data-error-for="skills"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="awards">Awards and titles <span class="optional">(optional)</span></label>
+							<textarea id="awards" name="awards" maxlength="400" rows="2" aria-describedby="awards-help awards-error"></textarea>
+							<p class="field-help" id="awards-help">Separate awards with commas. Add up to 10.</p>
+							<p class="field-error" id="awards-error" data-error-for="awards"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="member-since">Member since <span class="optional">(optional)</span></label>
+							<input id="member-since" name="memberSince" type="text" maxlength="100" placeholder="For example: 2020" aria-describedby="member-since-help member-since-error" />
+							<p class="field-help" id="member-since-help">What year did you join Amtgard?</p>
+							<p class="field-error" id="member-since-error" data-error-for="memberSince"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="biography">Short biography <span class="optional">(optional)</span></label>
+							<textarea id="biography" name="biography" maxlength="1000" rows="5" aria-describedby="biography-help biography-error"></textarea>
+							<p class="field-help" id="biography-help">Up to 1,000 characters.</p>
+							<p class="field-error" id="biography-error" data-error-for="biography"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="photo-url">Photo URL <span class="optional">(optional)</span></label>
+							<input id="photo-url" name="photoUrl" type="url" inputmode="url" maxlength="500" placeholder="https://example.com/your-photo.jpg" aria-describedby="photo-url-help photo-url-error" />
+							<p class="field-help" id="photo-url-help">Use a public HTTPS link. Image uploads are not supported yet.</p>
+							<p class="field-error" id="photo-url-error" data-error-for="photoUrl"></p>
+						</div>
+					</div>
+				</section>
+
+				<section class="form-section" aria-labelledby="contact-heading">
+					<div class="section-heading">
+						<h2 id="contact-heading">Public contact links</h2>
+						<p>All are optional. Only add links you’re happy to share publicly.</p>
+					</div>
+
+					<div class="field-grid">
+						<div class="form-field">
+							<label for="website">Website</label>
+							<input id="website" name="website" type="url" inputmode="url" maxlength="500" placeholder="https://example.com" aria-describedby="website-error" />
+							<p class="field-error" id="website-error" data-error-for="website"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="instagram">Instagram</label>
+							<input id="instagram" name="instagram" type="url" inputmode="url" maxlength="500" placeholder="https://instagram.com/yourname" aria-describedby="instagram-error" />
+							<p class="field-error" id="instagram-error" data-error-for="instagram"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="facebook">Facebook</label>
+							<input id="facebook" name="facebook" type="url" inputmode="url" maxlength="500" placeholder="https://facebook.com/yourpage" aria-describedby="facebook-error" />
+							<p class="field-error" id="facebook-error" data-error-for="facebook"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="discord">Discord</label>
+							<input id="discord" name="discord" type="url" inputmode="url" maxlength="500" placeholder="https://discord.gg/example" aria-describedby="discord-error" />
+							<p class="field-error" id="discord-error" data-error-for="discord"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="tiktok">TikTok</label>
+							<input id="tiktok" name="tiktok" type="url" inputmode="url" maxlength="500" placeholder="https://tiktok.com/@yourname" aria-describedby="tiktok-error" />
+							<p class="field-error" id="tiktok-error" data-error-for="tiktok"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="other-contact">Other public link</label>
+							<input id="other-contact" name="other" type="url" inputmode="url" maxlength="500" placeholder="https://example.com/profile" aria-describedby="other-contact-error" />
+							<p class="field-error" id="other-contact-error" data-error-for="other"></p>
+						</div>
+					</div>
+				</section>
+
+				<section class="form-section" aria-labelledby="submission-heading">
+					<div class="section-heading">
+						<h2 id="submission-heading">Submission details</h2>
+						<p>Your email is only for follow-up about this submission. It will not be added to your public profile.</p>
+					</div>
+
+					<div class="form-field">
+						<label for="submitter-email">Your email address <span aria-hidden="true">*</span></label>
+						<input id="submitter-email" name="submitterEmail" type="email" required maxlength="254" autocomplete="email" aria-describedby="submitter-email-help submitter-email-error" />
+						<p class="field-help" id="submitter-email-help">Private: directory administrators only.</p>
+						<p class="field-error" id="submitter-email-error" data-error-for="submitterEmail"></p>
+					</div>
+
+					<div class="honeypot" aria-hidden="true">
+						<label for="company-website">Leave this field blank</label>
+						<input id="company-website" name="companyWebsite" type="text" tabindex="-1" autocomplete="off" />
+					</div>
+
+					<div class="consent-field">
+						<input id="consent" name="consent" type="checkbox" required value="true" aria-describedby="consent-help consent-error" />
+						<div>
+							<label for="consent">I’m okay with submitting this profile <span aria-hidden="true">*</span></label>
+							<p id="consent-help">
+								I have permission to share this profile, its public information can appear in the directory,
+								and I own the submitted image or have permission to use it.
+							</p>
+							<p class="field-error" id="consent-error" data-error-for="consent"></p>
+						</div>
+					</div>
+				</section>
+
+				<div class="form-actions">
+					<button class="submit-button" type="submit" data-submit-button>
+						<span data-submit-label>Submit profile</span>
+					</button>
+					<p>Submissions are reviewed before publication.</p>
+				</div>
+			</form>
 		</main>
+
+		<script>
+			const ENDPOINT = "/.netlify/functions/submit-profile";
+			const MAX_SKILLS = 20;
+			const MAX_AWARDS = 10;
+
+			function requireElement<T extends Element>(selector: string): T {
+				const element = document.querySelector<T>(selector);
+				if (!element) {
+					throw new Error(`Missing required form element: ${selector}`);
+				}
+				return element;
+			}
+
+			const form = requireElement<HTMLFormElement>("[data-profile-form]");
+			const status = requireElement<HTMLElement>("[data-form-status]");
+			const statusTitle = requireElement<HTMLElement>("[data-status-title]");
+			const statusMessage = requireElement<HTMLElement>("[data-status-message]");
+			const errorSummary = requireElement<HTMLElement>("[data-error-summary]");
+			const errorList = requireElement<HTMLUListElement>("[data-error-list]");
+			const submitButton = requireElement<HTMLButtonElement>("[data-submit-button]");
+			const submitLabel = requireElement<HTMLElement>("[data-submit-label]");
+			const skillsInput = requireElement<HTMLTextAreaElement>("#skills");
+			const awardsInput = requireElement<HTMLTextAreaElement>("#awards");
+			const urlInputs = Array.from(form.querySelectorAll<HTMLInputElement>('input[type="url"]'));
+			const validatedInputs = Array.from(
+				form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input:not(.honeypot input), textarea"),
+			);
+			const kingdomSelect = requireElement<HTMLSelectElement>("#kingdom");
+
+			type FormState = "ready" | "submitting" | "success" | "validation-error" | "server-error";
+
+			function setState(state: FormState, title: string, message: string) {
+				status.dataset.state = state;
+				statusTitle.textContent = title;
+				statusMessage.textContent = message;
+			}
+
+			function splitList(value: string) {
+				return value
+					.split(",")
+					.map((item) => item.trim())
+					.filter(Boolean);
+			}
+
+			function findDuplicate(items: string[]) {
+				const seen = new Set<string>();
+				for (const item of items) {
+					const normalized = item.toLocaleLowerCase();
+					if (seen.has(normalized)) {
+						return item;
+					}
+					seen.add(normalized);
+				}
+				return "";
+			}
+
+			function setFieldError(field: HTMLInputElement | HTMLTextAreaElement, message: string) {
+				field.setCustomValidity(message);
+				field.setAttribute("aria-invalid", message ? "true" : "false");
+				const error = form.querySelector<HTMLElement>(`[data-error-for="${field.name}"]`);
+				if (error) {
+					error.textContent = message;
+				}
+			}
+
+			function validateRequiredField(field: HTMLInputElement | HTMLTextAreaElement) {
+				setFieldError(field, "");
+				if (field.required && !field.value.trim()) {
+					setFieldError(field, "Please fill out this field.");
+					return;
+				}
+				if (field.validity.tooLong) {
+					setFieldError(field, `Please use ${field.maxLength} characters or fewer.`);
+				}
+			}
+
+			function validateEmail() {
+				const field = requireElement<HTMLInputElement>("#submitter-email");
+				validateRequiredField(field);
+				if (!field.value || field.validity.valueMissing) {
+					return;
+				}
+				if (field.validity.typeMismatch) {
+					setFieldError(field, "Enter a valid email address, such as name@example.com.");
+				}
+			}
+
+			function validateUrl(field: HTMLInputElement) {
+				setFieldError(field, "");
+				if (!field.value.trim()) {
+					return;
+				}
+				try {
+					const url = new URL(field.value);
+					if (url.protocol !== "https:") {
+						throw new Error("HTTPS required");
+					}
+				} catch {
+					setFieldError(field, "Enter a complete HTTPS URL, starting with https://.");
+				}
+			}
+
+			function validateList(field: HTMLTextAreaElement, label: string, maximum: number) {
+				validateRequiredField(field);
+				if (field.validationMessage) {
+					return;
+				}
+				const items = splitList(field.value);
+				if (items.length > maximum) {
+					setFieldError(field, `Add no more than ${maximum} ${label.toLowerCase()}.`);
+					return;
+				}
+				const duplicate = findDuplicate(items);
+				if (duplicate) {
+					setFieldError(field, `Remove the duplicate ${label.toLowerCase()} “${duplicate}”.`);
+				}
+			}
+
+			function validateConsent() {
+				const field = requireElement<HTMLInputElement>("#consent");
+				setFieldError(field, field.checked ? "" : "Please confirm you have permission to submit this profile.");
+			}
+
+			function validateForm() {
+				kingdomSelect.setCustomValidity(
+					kingdomSelect.value ? "" : "Please choose your kingdom.",
+				);
+				kingdomSelect.setAttribute(
+					"aria-invalid",
+					kingdomSelect.validationMessage ? "true" : "false",
+				);
+				const kingdomError = form.querySelector<HTMLElement>('[data-error-for="kingdom"]');
+				if (kingdomError) {
+					kingdomError.textContent = kingdomSelect.validationMessage;
+				}
+				for (const field of validatedInputs) {
+					if (field.type !== "url" && field.type !== "email" && field.type !== "checkbox") {
+						validateRequiredField(field);
+					}
+				}
+				validateEmail();
+				for (const field of urlInputs) {
+					validateUrl(field);
+				}
+				validateList(skillsInput, "Skills", MAX_SKILLS);
+				validateList(awardsInput, "Awards", MAX_AWARDS);
+				validateConsent();
+				return form.checkValidity();
+			}
+
+			function showErrorSummary() {
+				errorList.replaceChildren();
+				const invalidFields = Array.from(
+					form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(":invalid"),
+				);
+				for (const field of invalidFields) {
+					const label = form.querySelector<HTMLLabelElement>(`label[for="${field.id}"]`);
+					const item = document.createElement("li");
+					const link = document.createElement("a");
+					link.href = `#${field.id}`;
+					link.textContent = `${label?.textContent?.replace("*", "").trim() ?? "Field"}: ${field.validationMessage}`;
+					item.append(link);
+					errorList.append(item);
+				}
+				errorSummary.hidden = invalidFields.length === 0;
+				if (invalidFields.length > 0) {
+					errorSummary.focus();
+				}
+			}
+
+			function optionalValue(formData: FormData, name: string) {
+				const value = String(formData.get(name) ?? "").trim();
+				return value || undefined;
+			}
+
+			function makePayload() {
+				const formData = new FormData(form);
+				const contact = Object.fromEntries(
+					["website", "instagram", "facebook", "discord", "tiktok", "other"]
+						.map((name) => [name, optionalValue(formData, name)])
+						.filter((entry): entry is [string, string] => Boolean(entry[1])),
+				);
+
+				return {
+					profile: {
+						displayName: String(formData.get("displayName") ?? "").trim(),
+						firstName: String(formData.get("firstName") ?? "").trim(),
+						lastName: optionalValue(formData, "lastName"),
+						kingdom: String(formData.get("kingdom") ?? "").trim(),
+						homePark: String(formData.get("homePark") ?? "").trim(),
+						skills: splitList(String(formData.get("skills") ?? "")),
+						awards: splitList(String(formData.get("awards") ?? "")),
+						memberSince: optionalValue(formData, "memberSince"),
+						biography: optionalValue(formData, "biography"),
+						photoUrl: optionalValue(formData, "photoUrl"),
+						contact,
+					},
+					submitterEmail: String(formData.get("submitterEmail") ?? "").trim(),
+					consent: formData.get("consent") === "true",
+					companyWebsite: String(formData.get("companyWebsite") ?? ""),
+				};
+			}
+
+			form.addEventListener("input", (event) => {
+				const field = event.target;
+				if (field === kingdomSelect) {
+					kingdomSelect.setCustomValidity("");
+					kingdomSelect.setAttribute("aria-invalid", "false");
+					const error = form.querySelector<HTMLElement>('[data-error-for="kingdom"]');
+					if (error) {
+						error.textContent = "";
+					}
+				}
+				if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement)) {
+					if (field !== kingdomSelect) {
+						return;
+					}
+				} else {
+					setFieldError(field, "");
+				}
+				errorSummary.hidden = true;
+				if (status.dataset.state !== "submitting" && status.dataset.state !== "success") {
+					setState("ready", "Ready to submit", "Required fields are marked with an asterisk.");
+				}
+			});
+
+			form.addEventListener("submit", async (event) => {
+				event.preventDefault();
+				errorSummary.hidden = true;
+
+				if (!validateForm()) {
+					setState("validation-error", "Please check the form", "Fix the highlighted fields and try again.");
+					showErrorSummary();
+					return;
+				}
+
+				submitButton.disabled = true;
+				submitLabel.textContent = "Submitting…";
+				form.setAttribute("aria-busy", "true");
+				setState("submitting", "Submitting your profile", "Please wait while we send your information.");
+
+				try {
+					const response = await fetch(ENDPOINT, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(makePayload()),
+					});
+
+					let responseBody: { message?: string } = {};
+					try {
+						responseBody = await response.json();
+					} catch {
+						// The server may return an empty response.
+					}
+
+					if (!response.ok) {
+						throw new Error(responseBody.message || "The server could not accept your submission.");
+					}
+
+					form.reset();
+					form.hidden = true;
+					form.insertAdjacentHTML(
+						"afterend",
+						'<section class="success-panel" tabindex="-1" data-success-panel><h2>Profile submitted!</h2><p>Thanks for sharing your work. An administrator will review your profile before it appears in the directory.</p></section>',
+					);
+					requireElement<HTMLElement>("[data-success-panel]").focus();
+				} catch (error) {
+					const message = error instanceof Error ? error.message : "Something went wrong while submitting.";
+					setState("server-error", "Submission not sent", `${message} Please try again in a moment.`);
+					status.focus();
+				} finally {
+					submitButton.disabled = false;
+					submitLabel.textContent = "Submit profile";
+					form.removeAttribute("aria-busy");
+				}
+			});
+		</script>
 	</body>
 </html>
 
@@ -81,27 +526,222 @@ import "../styles/theme.css";
 		color: var(--color-muted);
 	}
 
-	.content-panel {
-		padding: 1.5rem;
+	.profile-form {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.form-status,
+	.error-summary,
+	.form-section,
+	:global(.success-panel) {
+		padding: 1.25rem;
 		background: var(--color-card-soft);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		box-shadow: 0 10px 30px var(--shadow-card);
 	}
 
-	.content-panel h2 {
-		margin: 0 0 0.75rem;
-		font-size: 1.55rem;
+	.form-status {
+		display: grid;
+		gap: 0.25rem;
+		border-left: 5px solid var(--color-accent);
 	}
 
-	.content-panel p {
-		margin: 0 0 1rem;
+	.form-status[data-state="submitting"] {
+		border-left-color: var(--color-primary);
+	}
+
+	.form-status[data-state="validation-error"],
+	.form-status[data-state="server-error"],
+	.error-summary {
+		border-left: 5px solid #9b2c2c;
+	}
+
+	.form-status span,
+	.section-heading p,
+	.field-help,
+	.form-actions p,
+	.consent-field p,
+	:global(.success-panel p) {
 		color: var(--color-muted);
-		font-size: 1.02rem;
-		line-height: 1.65;
+		line-height: 1.5;
 	}
 
-	.content-panel p:last-child {
-		margin-bottom: 0;
+	.error-summary h2,
+	.form-section h2,
+	:global(.success-panel h2) {
+		margin: 0;
+		font-size: 1.4rem;
+	}
+
+	.error-summary ul {
+		margin: 0.75rem 0 0;
+		padding-left: 1.25rem;
+	}
+
+	.error-summary a {
+		color: #7a1f1f;
+	}
+
+	.form-section {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.section-heading p {
+		margin: 0.4rem 0 0;
+	}
+
+	.field-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.1rem;
+	}
+
+	.field-wide {
+		grid-column: 1 / -1;
+	}
+
+	.form-field {
+		display: grid;
+		gap: 0.35rem;
+		align-content: start;
+	}
+
+	.form-field label,
+	.consent-field label {
+		font-weight: 700;
+		color: var(--color-primary);
+	}
+
+	.optional {
+		font-weight: 400;
+		color: var(--color-muted);
+	}
+
+	.form-field input,
+	.form-field select,
+	.form-field textarea {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 0.7rem 0.8rem;
+		font: inherit;
+		color: var(--color-text);
+		background: #fffffb;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+	}
+
+	.form-field textarea {
+		resize: vertical;
+	}
+
+	.form-field input:focus,
+	.form-field select:focus,
+	.form-field textarea:focus,
+	.consent-field input:focus,
+	.error-summary:focus,
+	.form-status:focus,
+	:global(.success-panel:focus) {
+		outline: 3px solid rgba(111, 143, 79, 0.3);
+		outline-offset: 2px;
+		border-color: var(--color-accent);
+	}
+
+	.form-field input[aria-invalid="true"],
+	.form-field select[aria-invalid="true"],
+	.form-field textarea[aria-invalid="true"] {
+		border-color: #9b2c2c;
+	}
+
+	.field-help,
+	.field-error {
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	.field-error {
+		min-height: 1.25em;
+		color: #7a1f1f;
+	}
+
+	.honeypot {
+		position: absolute;
+		left: -10000px;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	}
+
+	.consent-field {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: 0.7rem;
+		align-items: start;
+	}
+
+	.consent-field input {
+		width: 1.2rem;
+		height: 1.2rem;
+		margin: 0.15rem 0 0;
+		accent-color: var(--color-primary);
+	}
+
+	.consent-field p {
+		margin: 0.35rem 0 0;
+	}
+
+	.form-actions {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.submit-button {
+		min-height: 3rem;
+		padding: 0.75rem 1.2rem;
+		font: inherit;
+		font-weight: 700;
+		color: #fffffb;
+		background: var(--color-primary);
+		border: 1px solid var(--color-primary);
+		border-radius: 8px;
+		cursor: pointer;
+	}
+
+	.submit-button:hover,
+	.submit-button:focus-visible {
+		background: var(--color-accent-dark);
+		outline: 3px solid rgba(111, 143, 79, 0.3);
+		outline-offset: 3px;
+	}
+
+	.submit-button:disabled {
+		opacity: 0.7;
+		cursor: wait;
+	}
+
+	.form-actions p {
+		margin: 0;
+	}
+
+	:global(.success-panel) {
+		border-left: 5px solid var(--color-primary);
+	}
+
+	:global(.success-panel p) {
+		margin: 0.6rem 0 0;
+	}
+
+	@media (max-width: 640px) {
+		.field-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.field-wide {
+			grid-column: auto;
+		}
 	}
 </style>

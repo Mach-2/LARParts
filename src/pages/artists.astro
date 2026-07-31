@@ -2,21 +2,17 @@
 import ArtistCard from "../components/ArtistCard.astro";
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import SiteHeader from "../components/SiteHeader.astro";
-import artists from "../data/directory.json";
+import { artists } from "../data/artistProfile";
 import "../styles/theme.css";
 
 const directoryArtists = [...artists].sort((a, b) => {
-	const lastName = a["Last Name"].localeCompare(b["Last Name"]);
-	return lastName || a["First Name"].localeCompare(b["First Name"]);
+	const lastName = (a.lastName ?? "").localeCompare(b.lastName ?? "");
+	return lastName || a.firstName.localeCompare(b.firstName);
 });
 const titleFilters = ["Serpent Knight", "Master Dragon", "Master Owl", "Master Garber"];
 const skills = [
 	...new Set(
-		directoryArtists.flatMap((artist) =>
-			artist.Skills.split(",")
-				.map((skill) => skill.trim())
-				.filter(Boolean),
-		),
+		directoryArtists.flatMap((artist) => artist.skills),
 	),
 ].sort((a, b) => a.localeCompare(b));
 ---
@@ -96,6 +92,7 @@ const skills = [
 		</main>
 
 		<script>
+			// @ts-nocheck -- Legacy DOM filter script; type-hardening is outside Phase 1.
 			const cards = Array.from(document.querySelectorAll("[data-artist-card]"));
 			const searchInput = document.querySelector("[data-filter-search]");
 			const titleSelect = document.querySelector("[data-filter-title]");

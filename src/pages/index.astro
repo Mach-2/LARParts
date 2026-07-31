@@ -1,6 +1,6 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
-import artists from "../data/directory.json";
+import { artists } from "../data/artistProfile";
 import "../styles/theme.css";
 
 function slugify(value: string) {
@@ -14,7 +14,7 @@ function slugify(value: string) {
 const kingdomMap = new Map<string, number>();
 
 for (const artist of artists) {
-	const kingdom = artist.Kingdom?.trim();
+	const kingdom = artist.kingdom?.trim();
 
 	if (!kingdom) {
 		continue;

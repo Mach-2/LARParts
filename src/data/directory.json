@@ -1,112 +1,221 @@
 [
   {
-    "First Name": "Adena",
-    "Last Name": "Darkstar",
-    "Home Park": "Shrouding Mist",
-    "Awards": "",
-    "Member Since": "Discord: Adenadarkstar",
-    "Photo": "webpage/public/photos/Adena_Darkstar.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Tablet/Inkle Weaving, Sewing, Viking Wire Weaving"
+    "id": "nl-0001",
+    "firstName": "Adena",
+    "lastName": "Darkstar",
+    "displayName": "Adena Darkstar",
+    "kingdom": "Northern Lights",
+    "homePark": "Shrouding Mist",
+    "awards": [],
+    "skills": [
+      "Tablet/Inkle Weaving",
+      "Sewing",
+      "Viking Wire Weaving"
+    ],
+    "contact": {
+      "discord": "Adenadarkstar"
+    },
+    "photoUrl": "/photos/Adena_Darkstar.jpg"
   },
   {
-    "First Name": "Aera",
-    "Last Name": "Leyric",
-    "Home Park": "Seaside Keep",
-    "Awards": "Master Garber",
-    "Member Since": "Discord: .mach2",
-    "Photo": "webpage/public/photos/Aera_Leyric.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Sewing, Applique, Crochet, Knitting, Weaving, Yarn Spinning"
+    "id": "nl-0002",
+    "firstName": "Aera",
+    "lastName": "Leyric",
+    "displayName": "Aera Leyric",
+    "kingdom": "Northern Lights",
+    "homePark": "Seaside Keep",
+    "awards": [
+      "Master Garber"
+    ],
+    "skills": [
+      "Sewing",
+      "Applique",
+      "Crochet",
+      "Knitting",
+      "Weaving",
+      "Yarn Spinning"
+    ],
+    "contact": {
+      "discord": ".mach2"
+    },
+    "photoUrl": "/photos/Aera_Leyric.jpg"
   },
   {
-    "First Name": "Dartz",
-    "Last Name": "Arrowfox",
-    "Home Park": "Greenwood Keep",
-    "Awards": "Master Dragon",
-    "Member Since": "Insta: chainedartz",
-    "Photo": "webpage/public/photos/Dartz_Arrowfox.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Chainmail, Writing, Drawing, Singing"
+    "id": "nl-0003",
+    "firstName": "Dartz",
+    "lastName": "Arrowfox",
+    "displayName": "Dartz Arrowfox",
+    "kingdom": "Northern Lights",
+    "homePark": "Greenwood Keep",
+    "awards": [
+      "Master Dragon"
+    ],
+    "skills": [
+      "Chainmail",
+      "Writing",
+      "Drawing",
+      "Singing"
+    ],
+    "contact": {
+      "instagram": "chainedartz"
+    },
+    "photoUrl": "/photos/Dartz_Arrowfox.jpg"
   },
   {
-    "First Name": "Ritter Mithius",
-    "Last Name": "Silverbow",
-    "Home Park": "Mithril Hills",
-    "Awards": "Serpent Knight",
-    "Member Since": "Player Since 2003",
-    "Photo": "webpage/public/photos/Ritter_Mithius_Silverbow.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Sewing, Leatherwork, Jewelry, Chainmail, Cooking, Painting, Drawing, Sculpting, Weapons, Armor"
+    "id": "nl-0004",
+    "firstName": "Ritter Mithius",
+    "lastName": "Silverbow",
+    "displayName": "Ritter Mithius Silverbow",
+    "kingdom": "Northern Lights",
+    "homePark": "Mithril Hills",
+    "awards": [
+      "Serpent Knight"
+    ],
+    "skills": [
+      "Sewing",
+      "Leatherwork",
+      "Jewelry",
+      "Chainmail",
+      "Cooking",
+      "Painting",
+      "Drawing",
+      "Sculpting",
+      "Weapons",
+      "Armor"
+    ],
+    "memberSince": "Player Since 2003",
+    "contact": {},
+    "photoUrl": "/photos/Ritter_Mithius_Silverbow.jpg"
   },
   {
-    "First Name": "Possum",
-    "Last Name": "",
-    "Home Park": "Lost Cove",
-    "Awards": "",
-    "Member Since": "Player Since 2025",
-    "Photo": "webpage/public/photos/Possum.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Sewing, Crochet, Digital Art, 2D Art, Painting, Shrinky Dink Charms"
+    "id": "nl-0005",
+    "firstName": "Possum",
+    "displayName": "Possum",
+    "kingdom": "Northern Lights",
+    "homePark": "Lost Cove",
+    "awards": [],
+    "skills": [
+      "Sewing",
+      "Crochet",
+      "Digital Art",
+      "2D Art",
+      "Painting",
+      "Shrinky Dink Charms"
+    ],
+    "memberSince": "Player Since 2025",
+    "contact": {},
+    "photoUrl": "/photos/Possum.jpg"
   },
   {
-    "First Name": "Fen",
-    "Last Name": "",
-    "Home Park": "Lost Cove",
-    "Awards": "",
-    "Member Since": "Insta: ayla_makes_things",
-    "Photo": "webpage/public/photos/Fen.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Leatherwork, Painting, SFX Makeup, Props"
+    "id": "nl-0006",
+    "firstName": "Fen",
+    "displayName": "Fen",
+    "kingdom": "Northern Lights",
+    "homePark": "Lost Cove",
+    "awards": [],
+    "skills": [
+      "Leatherwork",
+      "Painting",
+      "SFX Makeup",
+      "Props"
+    ],
+    "contact": {
+      "instagram": "ayla_makes_things"
+    },
+    "photoUrl": "/photos/Fen.jpg"
   },
   {
-    "First Name": "Thorfin",
-    "Last Name": "Hillbreaker",
-    "Home Park": "Greenwood Keep",
-    "Awards": "Master Owl",
-    "Member Since": "Tiktok: shyguyleather",
-    "Photo": "webpage/public/photos/Thorfin_Hillbreaker.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Sewing, Leatherwork, Scroll Work, Armor"
+    "id": "nl-0007",
+    "firstName": "Thorfin",
+    "lastName": "Hillbreaker",
+    "displayName": "Thorfin Hillbreaker",
+    "kingdom": "Northern Lights",
+    "homePark": "Greenwood Keep",
+    "awards": [
+      "Master Owl"
+    ],
+    "skills": [
+      "Sewing",
+      "Leatherwork",
+      "Scroll Work",
+      "Armor"
+    ],
+    "contact": {
+      "tiktok": "shyguyleather"
+    },
+    "photoUrl": "/photos/Thorfin_Hillbreaker.jpg"
   },
   {
-    "First Name": "Kanphuzian",
-    "Last Name": "Duskwalker",
-    "Home Park": "Shrouding Mist",
-    "Awards": "Serpent Knight",
-    "Member Since": "Player Since 2003",
-    "Photo": "webpage/public/photos/Kanphuzian_Duskwalker.jpg",
-    "Kingdom": "Northern Lights",
-    "Skills": "Sewing, Leatherwork, Scroll Work, Cooking, Baking, Weapons, Armor"
+    "id": "nl-0008",
+    "firstName": "Kanphuzian",
+    "lastName": "Duskwalker",
+    "displayName": "Kanphuzian Duskwalker",
+    "kingdom": "Northern Lights",
+    "homePark": "Shrouding Mist",
+    "awards": [
+      "Serpent Knight"
+    ],
+    "skills": [
+      "Sewing",
+      "Leatherwork",
+      "Scroll Work",
+      "Cooking",
+      "Baking",
+      "Weapons",
+      "Armor"
+    ],
+    "memberSince": "Player Since 2003",
+    "contact": {},
+    "photoUrl": "/photos/Kanphuzian_Duskwalker.jpg"
   },
   {
-    "First Name": "Player",
-    "Last Name": "McPlayerFace",
-    "Home Park": "Goose Gulf",
-    "Awards": "",
-    "Member Since": "Placeholder profile",
-    "Photo": "",
-    "Kingdom": "Placeholder Kingdom",
-    "Skills": "Weaving, Sewing, Embroidery"
+    "id": "placeholder-0001",
+    "firstName": "Player",
+    "lastName": "McPlayerFace",
+    "displayName": "Player McPlayerFace",
+    "kingdom": "Placeholder Kingdom",
+    "homePark": "Goose Gulf",
+    "awards": [],
+    "skills": [
+      "Weaving",
+      "Sewing",
+      "Embroidery"
+    ],
+    "biography": "Placeholder profile",
+    "contact": {}
   },
   {
-    "First Name": "Sample",
-    "Last Name": "Smith",
-    "Home Park": "Moose Meadows",
-    "Awards": "Master Owl",
-    "Member Since": "Placeholder profile",
-    "Photo": "",
-    "Kingdom": "Placeholder Kingdom",
-    "Skills": "Leatherwork, Metalwork, Armor"
+    "id": "placeholder-0002",
+    "firstName": "Sample",
+    "lastName": "Smith",
+    "displayName": "Sample Smith",
+    "kingdom": "Placeholder Kingdom",
+    "homePark": "Moose Meadows",
+    "awards": [
+      "Master Owl"
+    ],
+    "skills": [
+      "Leatherwork",
+      "Metalwork",
+      "Armor"
+    ],
+    "biography": "Placeholder profile",
+    "contact": {}
   },
   {
-    "First Name": "Demo",
-    "Last Name": "Dave",
-    "Home Park": "Bear Barony",
-    "Awards": "",
-    "Member Since": "Placeholder profile",
-    "Photo": "",
-    "Kingdom": "Placeholder Kingdom",
-    "Skills": "Painting, Drawing, Scroll Work"
+    "id": "placeholder-0003",
+    "firstName": "Demo",
+    "lastName": "Dave",
+    "displayName": "Demo Dave",
+    "kingdom": "Placeholder Kingdom",
+    "homePark": "Bear Barony",
+    "awards": [],
+    "skills": [
+      "Painting",
+      "Drawing",
+      "Scroll Work"
+    ],
+    "biography": "Placeholder profile",
+    "contact": {}
   }
 ]
