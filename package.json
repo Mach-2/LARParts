@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "tsx --test tests/profile-submission.test.ts"
   },
   "dependencies": {
     "astro": "^6.1.9",
@@ -17,6 +18,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@netlify/functions": "^5.1.2",
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }

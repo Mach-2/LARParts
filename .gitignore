@@ -21,6 +21,7 @@ dev.err
 
 # Netlify CLI local state
 .netlify/
+deno.lock
 
 # macOS-specific files
 .DS_Store

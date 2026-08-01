@@ -40,9 +40,10 @@ npx netlify-cli dev
 Open `http://localhost:8888`. The submission endpoint is available at
 `http://localhost:8888/.netlify/functions/submit-profile`.
 
-The current endpoint is deliberately a non-processing stub and responds with
-HTTP `501`. It does not store, forward, or log submitted profile data. A later
-phase will add server validation and the GitHub/email integrations.
+The endpoint validates and normalizes submissions, rejects malformed or abusive
+requests, and prepares a public artist record without private submission
+metadata. It does not write to GitHub or send administrator notifications yet;
+those integrations are added in later phases.
 
 The Netlify CLI may ask you to sign in or link a Netlify project. Local function
 execution does not require production secrets, but integrations will require
