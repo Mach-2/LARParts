@@ -169,6 +169,18 @@
     "photoUrl": "/photos/Kanphuzian_Duskwalker.jpg"
   },
   {
+    "id": "artist-330a6032f4aa3d47",
+    "firstName": "Test",
+    "displayName": "Test",
+    "kingdom": "Northern Lights",
+    "homePark": "SK",
+    "awards": [],
+    "skills": [
+      "Skills"
+    ],
+    "contact": {}
+  },
+  {
     "id": "placeholder-0001",
     "firstName": "Player",
     "lastName": "McPlayerFace",
