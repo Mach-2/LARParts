@@ -169,6 +169,19 @@
     "photoUrl": "/photos/Kanphuzian_Duskwalker.jpg"
   },
   {
+    "id": "artist-3d24e623e8446677",
+    "firstName": "Madison",
+    "lastName": "test",
+    "displayName": "Test",
+    "kingdom": "Golden Plains",
+    "homePark": "SK",
+    "awards": [],
+    "skills": [
+      "Test"
+    ],
+    "contact": {}
+  },
+  {
     "id": "placeholder-0001",
     "firstName": "Player",
     "lastName": "McPlayerFace",
