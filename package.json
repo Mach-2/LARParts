@@ -9,9 +9,19 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+		"check:github": "node --env-file=.env --import tsx scripts/check-github-app.ts",
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
-    "astro": "^6.1.9"
+    "astro": "^6.1.9",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@netlify/functions": "^5.1.2",
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }

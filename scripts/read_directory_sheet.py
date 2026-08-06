@@ -4,6 +4,7 @@ import json
 import pathlib
 import re
 import urllib.request
+import uuid
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -13,7 +14,6 @@ SHEET_ID = "1IVvNgQLEdbiBRUj6CQwDl_PA8Eu6QHAmo9Ems1aIsB0"
 GID = "901559789"  # Directory sheet
 OUTPUT_FILE = BASE_DIR / "src/data/directory.json"
 PHOTOS_DIR = BASE_DIR / "public/photos"
-REMOVED_COLUMNS = {"Promotion", "b"}
 SKILL_COLUMNS = ("Garber Arts", "Dragon Arts", "Owl Arts")
 KINGDOM = "Northern Lights"
 NAMESPACES = {
@@ -66,21 +66,96 @@ def extract_photos(rows):
             filename = make_player_filename(row["First Name"], row["Last Name"]) + extension
             output_path = PHOTOS_DIR / filename
             output_path.write_bytes(workbook.read(image_path))
-            photo_paths[row_index] = f"photos/{filename}"
+            photo_paths[row_index] = f"/photos/{filename}"
 
     return photo_paths
+
+
+def split_values(value):
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
 def merge_skills(row):
     skills = []
 
     for column in SKILL_COLUMNS:
-        for skill in row.get(column, "").split(","):
-            skill = skill.strip()
-            if skill:
+        for skill in split_values(row.get(column, "")):
+            if skill not in skills:
                 skills.append(skill)
 
-    return ", ".join(skills)
+    return skills
+
+
+def load_existing_ids():
+    if not OUTPUT_FILE.exists():
+        return {}
+
+    with OUTPUT_FILE.open(encoding="utf-8") as file:
+        profiles = json.load(file)
+
+    return {
+        (profile["firstName"].casefold(), profile.get("lastName", "").casefold()):
+            profile["id"]
+        for profile in profiles
+    }
+
+
+def get_artist_id(row, existing_ids):
+    name_key = (
+        row.get("First Name", "").strip().casefold(),
+        row.get("Last Name", "").strip().casefold(),
+    )
+    return existing_ids.get(name_key, f"artist-{uuid.uuid4().hex[:12]}")
+
+
+def normalize_member_since(value):
+    value = value.strip()
+    return value if value.casefold().startswith("player since ") else None
+
+
+def normalize_contact(value):
+    value = value.strip()
+    if ":" not in value:
+        return {}
+
+    label, handle = (part.strip() for part in value.split(":", 1))
+    contact_field = {
+        "discord": "discord",
+        "insta": "instagram",
+        "instagram": "instagram",
+        "tiktok": "tiktok",
+    }.get(label.casefold())
+    return {contact_field: handle} if contact_field and handle else {}
+
+
+def normalize_profile(row, existing_ids):
+    first_name = row.get("First Name", "").strip()
+    last_name = row.get("Last Name", "").strip()
+    legacy_member_since = row.get("Member Since", "").strip()
+    profile = {
+        "id": get_artist_id(row, existing_ids),
+        "firstName": first_name,
+        "displayName": " ".join(filter(None, (first_name, last_name))),
+        "kingdom": KINGDOM,
+        "awards": split_values(row.get("Awards", "")),
+        "skills": merge_skills(row),
+        "contact": normalize_contact(legacy_member_since),
+    }
+
+    optional_values = {
+        "lastName": last_name,
+        "homePark": row.get("Home Park", "").strip(),
+        "memberSince": normalize_member_since(legacy_member_since),
+    }
+    for field, value in optional_values.items():
+        if value:
+            profile[field] = value
+
+    # Preserve unclassified legacy text instead of silently discarding it.
+    if legacy_member_since and not profile["contact"] and "memberSince" not in profile:
+        profile["biography"] = legacy_member_since
+
+    return profile
 
 
 def read_directory_sheet():
@@ -88,23 +163,19 @@ def read_directory_sheet():
     csv_text = download(url).decode("utf-8")
 
     reader = csv.DictReader(io.StringIO(csv_text))
-    rows = []
+    source_rows = list(reader)
+    existing_ids = load_existing_ids()
+    profiles = [
+        normalize_profile(row, existing_ids)
+        for row in source_rows
+    ]
 
-    for row in reader:
-        cleaned_row = {
-            key: value
-            for key, value in row.items()
-            if key not in REMOVED_COLUMNS and key not in SKILL_COLUMNS
-        }
-        cleaned_row["Skills"] = merge_skills(row)
-        cleaned_row["Kingdom"] = KINGDOM
-        rows.append(cleaned_row)
+    photo_paths = extract_photos(source_rows)
+    for index, profile in enumerate(profiles):
+        if photo_url := photo_paths.get(index):
+            profile["photoUrl"] = photo_url
 
-    photo_paths = extract_photos(rows)
-    for index, row in enumerate(rows):
-        row["Photo"] = photo_paths.get(index, "")
-
-    return rows
+    return profiles
 
 
 if __name__ == "__main__":

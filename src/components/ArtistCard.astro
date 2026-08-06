@@ -1,54 +1,46 @@
 ---
+import type { ArtistProfile } from "../data/artistProfile";
+
 interface Props {
-	artist: {
-		"First Name": string;
-		"Last Name": string;
-		"Home Park": string;
-		Awards: string;
-		Skills: string;
-		"Member Since": string;
-		Photo: string;
-		Kingdom: string;
-	};
+	artist: ArtistProfile;
 }
 
 const { artist } = Astro.props;
 
-const fullName = `${artist["First Name"]} ${artist["Last Name"]}`.trim();
-const normalizedPhotoPath = artist.Photo
-	.replace(/^webpage\/public\//, "")
-	.replace(/^\/+/, "");
-const photoSrc = normalizedPhotoPath ? `/${normalizedPhotoPath}` : "";
-const initials = [artist["First Name"], artist["Last Name"]]
+const initials = [artist.firstName, artist.lastName ?? ""]
 	.map((name) => name.trim().charAt(0))
 	.filter(Boolean)
 	.join("");
 const searchableText = [
-	fullName,
-	artist["Home Park"],
-	artist.Kingdom,
-	artist.Awards,
-	artist.Skills,
-	artist["Member Since"],
+	artist.displayName,
+	artist.homePark,
+	artist.kingdom,
+	...artist.awards,
+	...artist.skills,
+	artist.memberSince,
+	artist.biography,
+	...Object.values(artist.contact),
 ]
+	.filter(Boolean)
 	.join(" ")
 	.toLowerCase();
-const normalizedAwards = artist.Awards.toLowerCase();
-const normalizedSkills = artist.Skills.toLowerCase();
+const normalizedAwards = artist.awards.join(" ").toLowerCase();
+const normalizedSkills = artist.skills.join(" ").toLowerCase();
 ---
 
 <article
+	id={artist.id}
 	class="artist-card"
 	data-artist-card
 	data-search={searchableText}
-	data-kingdom={artist.Kingdom}
-	data-park={artist["Home Park"]}
+	data-kingdom={artist.kingdom}
+	data-park={artist.homePark}
 	data-awards={normalizedAwards}
 	data-skills={normalizedSkills}
 >
 	{
-		photoSrc ? (
-			<img class="artist-photo" src={photoSrc} alt={fullName} loading="lazy" />
+		artist.photoUrl ? (
+			<img class="artist-photo" src={artist.photoUrl} alt={artist.displayName} loading="lazy" />
 		) : (
 			<div class="artist-photo artist-photo-placeholder" aria-hidden="true">
 				{initials}
@@ -58,18 +50,22 @@ const normalizedSkills = artist.Skills.toLowerCase();
 
 	<div class="artist-content">
 		<div class="artist-main">
-			<h2>{fullName}</h2>
-			<p class="artist-park">
-				{artist["Home Park"]}
-				{artist.Kingdom && <span>{artist.Kingdom}</span>}
-			</p>
+			<h2>{artist.displayName}</h2>
+			{
+				(artist.homePark || artist.kingdom) && (
+					<p class="artist-park">
+						{artist.homePark}
+						{artist.kingdom && <span>{artist.kingdom}</span>}
+					</p>
+				)
+			}
 
-			{artist.Awards && <p class="artist-awards">Titles: {artist.Awards}</p>}
+			{artist.awards.length > 0 && <p class="artist-awards">Titles: {artist.awards.join(", ")}</p>}
 
-			{artist.Skills && <p class="artist-specialties">{artist.Skills}</p>}
+			{artist.skills.length > 0 && <p class="artist-specialties">{artist.skills.join(", ")}</p>}
 		</div>
 
-		{artist["Member Since"] && <p class="artist-note">{artist["Member Since"]}</p>}
+		{artist.memberSince && <p class="artist-note">{artist.memberSince}</p>}
 	</div>
 </article>
 

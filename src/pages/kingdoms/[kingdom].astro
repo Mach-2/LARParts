@@ -2,7 +2,8 @@
 import ArtistCard from "../../components/ArtistCard.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
-import artists from "../../data/directory.json";
+import { artists } from "../../data/artistProfile";
+import kingdomDefinitions from "../../data/kingdoms.json";
 import "../../styles/theme.css";
 
 export function getStaticPaths() {
@@ -12,7 +13,13 @@ export function getStaticPaths() {
 			.trim()
 			.replace(/[^a-z0-9]+/g, "-")
 			.replace(/^-|-$/g, "");
-	const kingdoms = [...new Set(artists.map((artist) => artist.Kingdom).filter(Boolean))];
+	const kingdoms = [
+		...new Set(
+			artists
+				.map((artist) => artist.kingdom)
+				.filter((kingdom): kingdom is string => Boolean(kingdom)),
+		),
+	];
 
 	return kingdoms.map((kingdom) => ({
 		params: { kingdom: slugify(kingdom) },
@@ -21,18 +28,21 @@ export function getStaticPaths() {
 }
 
 const { kingdom } = Astro.props;
-const kingdomArtists = artists.filter((artist) => artist.Kingdom === kingdom);
+const fullKingdomName =
+	kingdomDefinitions.find((definition) => definition.name === kingdom)?.fullName ??
+	kingdom;
+const kingdomArtists = artists.filter((artist) => artist.kingdom === kingdom);
 const parks = [
-	...new Set(kingdomArtists.map((artist) => artist["Home Park"]).filter(Boolean)),
+	...new Set(
+		kingdomArtists
+			.map((artist) => artist.homePark)
+			.filter((park): park is string => Boolean(park)),
+	),
 ].sort((a, b) => a.localeCompare(b));
 const titleFilters = ["Serpent Knight", "Master Dragon", "Master Owl", "Master Garber"];
 const skills = [
 	...new Set(
-		kingdomArtists.flatMap((artist) =>
-			artist.Skills.split(",")
-				.map((skill) => skill.trim())
-				.filter(Boolean),
-		),
+		kingdomArtists.flatMap((artist) => artist.skills),
 	),
 ].sort((a, b) => a.localeCompare(b));
 ---
@@ -58,7 +68,7 @@ const skills = [
 			/>
 
 			<section class="hero">
-				<p class="eyebrow">Kingdom of {kingdom}</p>
+				<p class="eyebrow">{fullKingdomName}</p>
 				<h1>{kingdom} Directory</h1>
 				<p class="intro">
 					Browse artists by park, titles, and craft specialties.
@@ -121,6 +131,7 @@ const skills = [
 		</main>
 
 		<script>
+			// @ts-nocheck -- Legacy DOM filter script; type-hardening is outside Phase 1.
 			const cards = Array.from(document.querySelectorAll("[data-artist-card]"));
 			const searchInput = document.querySelector("[data-filter-search]");
 			const parkSelect = document.querySelector("[data-filter-park]");

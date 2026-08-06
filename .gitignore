@@ -16,8 +16,12 @@ dev.err
 
 
 # environment variables
-.env
-.env.production
+.env*
+!.env.example
+
+# Netlify CLI local state
+.netlify/
+deno.lock
 
 # macOS-specific files
 .DS_Store
