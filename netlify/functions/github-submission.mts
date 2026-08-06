@@ -322,7 +322,6 @@ The submitter's private email address is intentionally excluded from this pull r
 - [ ] The name and location information are correct
 - [ ] The biography is appropriate for public display
 - [ ] Skills and awards are formatted consistently
-- [ ] Contact details are intentionally public
 - [ ] Image permission has been confirmed, if applicable
 - [ ] The profile is ready to be added to staging
 
