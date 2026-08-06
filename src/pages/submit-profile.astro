@@ -469,7 +469,7 @@ import "../styles/theme.css";
 					form.hidden = true;
 					form.insertAdjacentHTML(
 						"afterend",
-						'<section class="success-panel" tabindex="-1" data-success-panel><h2>Profile submitted!</h2><p>Thanks for sharing your work. An administrator will review your profile before it appears in the directory.</p></section>',
+						'<section class="success-panel" tabindex="-1" data-success-panel><h2>Profile submitted!</h2><p>Thanks for sharing your work. An administrator will review your profile before it appears in the directory. Please check back again in a few days!</p></section>',
 					);
 					requireElement<HTMLElement>("[data-success-panel]").focus();
 				} catch (error) {
