@@ -169,6 +169,18 @@
     "photoUrl": "/photos/Kanphuzian_Duskwalker.jpg"
   },
   {
+    "id": "artist-54e1b9eb55552f38",
+    "firstName": "Test",
+    "displayName": "Test",
+    "kingdom": "Polaris",
+    "homePark": "SK",
+    "awards": [],
+    "skills": [
+      "Skills"
+    ],
+    "contact": {}
+  },
+  {
     "id": "placeholder-0001",
     "firstName": "Player",
     "lastName": "McPlayerFace",
