@@ -169,6 +169,18 @@
     "photoUrl": "/photos/Kanphuzian_Duskwalker.jpg"
   },
   {
+    "id": "artist-8cebef18679989ea",
+    "firstName": "Madison",
+    "displayName": "Test",
+    "kingdom": "Neverwinter",
+    "homePark": "SK",
+    "awards": [],
+    "skills": [
+      "test"
+    ],
+    "contact": {}
+  },
+  {
     "id": "placeholder-0001",
     "firstName": "Player",
     "lastName": "McPlayerFace",
