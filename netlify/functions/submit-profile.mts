@@ -204,10 +204,15 @@ export async function handleProfileSubmission(
 			);
 		}
 
-		console.error(
-			"Profile submission failed:",
-			error instanceof Error ? error.name : "UnknownError",
-		);
+		if (error instanceof Error) {
+			console.error("Profile submission failed:", {
+				name: error.name,
+				message: error.message,
+				stack: error.stack,
+			});
+		} else {
+			console.error("Profile submission failed: UnknownError");
+		}
 		return jsonResponse(
 			{
 				success: false,
@@ -218,7 +223,9 @@ export async function handleProfileSubmission(
 	}
 }
 
-export default handleProfileSubmission;
+export default function submitProfile(request: Request) {
+	return handleProfileSubmission(request);
+}
 
 export const config: Config = {
 	method: "POST",
