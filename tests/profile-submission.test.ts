@@ -143,17 +143,21 @@ test("normalizes input and keeps private fields out of the public artist", () =>
 
 	const parsed = profileSubmissionSchema.parse(payload);
 	const prepared = prepareSubmission(parsed, []);
+	const retried = prepareSubmission(parsed, []);
 
 	assert.equal(prepared.artist.displayName, "Test Artist");
 	assert.deepEqual(prepared.artist.skills, ["Leatherwork", "Sewing"]);
 	assert.equal(prepared.artist.memberSince, "Player Since 2020");
 	assert.equal(prepared.artist.contact.website, "https://example.com/");
 	assert.match(prepared.artist.id, /^artist-[a-f0-9]{16}$/);
-	assert.match(prepared.submissionId, /^sub-[a-f0-9-]{36}$/);
+	assert.match(prepared.submissionId, /^sub-[a-f0-9]{16}$/);
 	assert.equal(
 		prepared.branchName,
-		`profile-submission/${prepared.submissionId}`,
+		`artist-submission/${prepared.artist.id}-${prepared.submissionId.slice(4, 12)}`,
 	);
+	assert.equal(retried.artist.id, prepared.artist.id);
+	assert.equal(retried.submissionId, prepared.submissionId);
+	assert.equal(retried.branchName, prepared.branchName);
 	assert.equal(prepared.submitterEmail, "artist@example.com");
 	assert.equal("submitterEmail" in prepared.artist, false);
 	assert.equal("consent" in prepared.artist, false);
@@ -161,13 +165,18 @@ test("normalizes input and keeps private fields out of the public artist", () =>
 });
 
 test("returns a structured success response", async () => {
-	const response = await handleProfileSubmission(jsonRequest(validPayload()));
+	const response = await handleProfileSubmission(
+		jsonRequest(validPayload()),
+		async (proposal) => ({
+			pullRequestUrl: "https://github.com/Mach-2/LARParts/pull/123",
+			submissionId: proposal.submissionId,
+		}),
+	);
 	const body = await response.json();
 
 	assert.equal(response.status, 201);
 	assert.equal(body.success, true);
-	assert.match(body.submissionId, /^sub-[a-f0-9-]{36}$/);
+	assert.match(body.submissionId, /^sub-[a-f0-9]{16}$/);
 	assert.equal(body.message, "Your profile has been submitted for review.");
 	assert.equal(response.headers.get("cache-control"), "no-store");
 });
-

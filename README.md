@@ -41,9 +41,10 @@ Open `http://localhost:8888`. The submission endpoint is available at
 `http://localhost:8888/.netlify/functions/submit-profile`.
 
 The endpoint validates and normalizes submissions, rejects malformed or abusive
-requests, and prepares a public artist record without private submission
-metadata. It does not write to GitHub or send administrator notifications yet;
-those integrations are added in later phases.
+requests, and opens a pull request containing only the public artist record.
+Submission pull requests target the persistent `staging` branch. They never
+target the production `main` branch directly. Administrator email notifications
+are added in a later phase.
 
 The Netlify CLI may ask you to sign in or link a Netlify project. Local function
 execution does not require production secrets, but integrations will require
@@ -67,3 +68,42 @@ The intended GitHub authentication method is a repository-installed GitHub App.
 If a personal access token is temporarily used for a prototype, use a
 fine-grained token restricted to `Mach-2/LARParts` with only the permissions
 needed to create a branch, commit the proposed files, and open a pull request.
+
+The GitHub App requires only these repository permissions:
+
+- Contents: read and write
+- Pull requests: read and write
+- Metadata: read-only
+
+Install the app only on `Mach-2/LARParts`, then set its App ID, installation ID,
+and private key in Netlify's environment-variable settings. For local `.env`
+files, the private key may use escaped `\n` line breaks. Never prefix these
+variables with `PUBLIC_`, because Astro exposes public-prefixed variables to the
+browser.
+
+## Branch workflow
+
+- `main` is the production branch.
+- `staging` contains approved profiles waiting for a production release.
+- `artist-submission/*` branches contain one proposed public profile and open a
+  pull request against `staging`.
+
+After merging `staging` into `main` for a production release—or after unrelated
+changes land directly on `main`—merge `main` back into the persistent `staging`
+branch. Do not delete, reset, or recreate `staging` after a release.
+
+One Git Bash workflow is:
+
+```bash
+git fetch origin
+git switch staging
+git merge origin/main
+git push origin staging
+```
+
+If `staging` has not been checked out locally before, use this instead of the
+second command:
+
+```bash
+git switch --track origin/staging
+```

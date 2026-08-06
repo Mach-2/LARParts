@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import type { Config } from "@netlify/functions";
 import { ZodError } from "zod";
 import { artists, type ArtistProfile } from "../../src/data/artistProfile";
@@ -7,13 +7,15 @@ import {
 	profileSubmissionSchema,
 	type ProfileSubmission,
 } from "../../src/data/profileSubmission";
+import {
+	queueGitHubSubmission,
+	SubmissionConflictError,
+	type ProposedSubmission,
+} from "./github-submission.mts";
 
 export const MAX_REQUEST_BYTES = 64 * 1024;
 
-interface PreparedSubmission {
-	artist: ArtistProfile;
-	branchName: string;
-	submissionId: string;
+interface PreparedSubmission extends ProposedSubmission {
 	submitterEmail: string;
 }
 
@@ -82,15 +84,21 @@ async function parseJsonRequest(request: Request) {
 	}
 }
 
-function generateUniqueArtistId(existingProfiles: ArtistProfile[]) {
-	const existingIds = new Set(existingProfiles.map((profile) => profile.id));
-	for (let attempt = 0; attempt < 10; attempt += 1) {
-		const candidate = `artist-${randomUUID().replaceAll("-", "").slice(0, 16)}`;
-		if (!existingIds.has(candidate)) {
-			return candidate;
-		}
-	}
-	throw new Error("Unable to allocate artist ID");
+function submissionFingerprint(submission: ProfileSubmission) {
+	return createHash("sha256")
+		.update(JSON.stringify(submission.profile))
+		.digest("hex");
+}
+
+function artistIdentityFingerprint(submission: ProfileSubmission) {
+	return createHash("sha256")
+		.update(
+			JSON.stringify({
+				displayName: submission.profile.displayName.toLocaleLowerCase(),
+				kingdom: submission.profile.kingdom.toLocaleLowerCase(),
+			}),
+		)
+		.digest("hex");
 }
 
 export function findExistingProfileConflict(
@@ -117,12 +125,16 @@ export function prepareSubmission(
 		);
 	}
 
-	const submissionId = `sub-${randomUUID()}`;
-	const artistId = generateUniqueArtistId(existingProfiles);
+	const fingerprint = submissionFingerprint(submission);
+	const artistId = `artist-${artistIdentityFingerprint(submission).slice(0, 16)}`;
+	const submissionId = `sub-${fingerprint.slice(16, 32)}`;
+	if (existingProfiles.some((profile) => profile.id === artistId)) {
+		throw new RequestError(409, "The proposed artist ID already exists.");
+	}
 
 	return {
 		artist: createPublicArtist(submission.profile, artistId),
-		branchName: `profile-submission/${submissionId}`,
+		branchName: `artist-submission/${artistId}-${submissionId.slice(4, 12)}`,
 		submissionId,
 		submitterEmail: submission.submitterEmail,
 	};
@@ -135,7 +147,10 @@ function validationDetails(error: ZodError) {
 	}));
 }
 
-export async function handleProfileSubmission(request: Request) {
+export async function handleProfileSubmission(
+	request: Request,
+	queueSubmission: typeof queueGitHubSubmission = queueGitHubSubmission,
+) {
 	if (request.method !== "POST") {
 		return jsonResponse(
 			{ success: false, message: "Method not allowed." },
@@ -160,13 +175,17 @@ export async function handleProfileSubmission(request: Request) {
 		}
 
 		const prepared = prepareSubmission(validation.data);
+		const queued = await queueSubmission({
+			artist: prepared.artist,
+			branchName: prepared.branchName,
+			submissionId: prepared.submissionId,
+		});
 
-		// GitHub persistence and administrator notification are added in later phases.
 		// Do not log the prepared submission: it contains the private submitter email.
 		return jsonResponse(
 			{
 				success: true,
-				submissionId: prepared.submissionId,
+				submissionId: queued.submissionId,
 				message: "Your profile has been submitted for review.",
 			},
 			201,
@@ -176,6 +195,12 @@ export async function handleProfileSubmission(request: Request) {
 			return jsonResponse(
 				{ success: false, message: error.message },
 				error.status,
+			);
+		}
+		if (error instanceof SubmissionConflictError) {
+			return jsonResponse(
+				{ success: false, message: error.message },
+				409,
 			);
 		}
 
@@ -196,12 +221,5 @@ export async function handleProfileSubmission(request: Request) {
 export default handleProfileSubmission;
 
 export const config: Config = {
-	path: "/.netlify/functions/submit-profile",
 	method: "POST",
-	rateLimit: {
-		windowLimit: 5,
-		windowSize: 60,
-		aggregateBy: ["ip", "domain"],
-	},
 };
-

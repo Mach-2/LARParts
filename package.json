@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "tsx --test tests/profile-submission.test.ts"
+		"check:github": "node --env-file=.env --import tsx scripts/check-github-app.ts",
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "astro": "^6.1.9",
