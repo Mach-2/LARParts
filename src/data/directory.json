@@ -169,6 +169,19 @@
     "photoUrl": "/photos/Kanphuzian_Duskwalker.jpg"
   },
   {
+    "id": "artist-6adf77ec55ce8576",
+    "firstName": "Another",
+    "lastName": "Test",
+    "displayName": "Test",
+    "kingdom": "Freeholds",
+    "homePark": "test",
+    "awards": [],
+    "skills": [
+      "One more test to verify email opt-in"
+    ],
+    "contact": {}
+  },
+  {
     "id": "placeholder-0001",
     "firstName": "Player",
     "lastName": "McPlayerFace",
