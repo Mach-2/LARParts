@@ -27,6 +27,7 @@ function validPayload() {
 			},
 		},
 		submitterEmail: "artist@example.com",
+		upgradeNotifications: false,
 		consent: true,
 		companyWebsite: "",
 	};
@@ -140,6 +141,7 @@ test("normalizes input and keeps private fields out of the public artist", () =>
 	payload.profile.memberSince = "2020";
 	payload.profile.contact.website = "https://EXAMPLE.com";
 	payload.submitterEmail = "ARTIST@EXAMPLE.COM";
+	payload.upgradeNotifications = true;
 
 	const parsed = profileSubmissionSchema.parse(payload);
 	const prepared = prepareSubmission(parsed, []);
@@ -159,24 +161,60 @@ test("normalizes input and keeps private fields out of the public artist", () =>
 	assert.equal(retried.submissionId, prepared.submissionId);
 	assert.equal(retried.branchName, prepared.branchName);
 	assert.equal(prepared.submitterEmail, "artist@example.com");
+	assert.equal(prepared.upgradeNotifications, true);
 	assert.equal("submitterEmail" in prepared.artist, false);
+	assert.equal("upgradeNotifications" in prepared.artist, false);
 	assert.equal("consent" in prepared.artist, false);
 	assert.equal("companyWebsite" in prepared.artist, false);
 });
 
 test("returns a structured success response", async () => {
+	let receivedNotification: Record<string, unknown> | undefined;
 	const response = await handleProfileSubmission(
 		jsonRequest(validPayload()),
 		async (proposal) => ({
 			pullRequestUrl: "https://github.com/Mach-2/LARParts/pull/123",
 			submissionId: proposal.submissionId,
 		}),
+		async (notification) => {
+			receivedNotification = notification;
+		},
 	);
 	const body = await response.json();
 
 	assert.equal(response.status, 201);
 	assert.equal(body.success, true);
+	assert.equal(body.notificationSent, true);
 	assert.match(body.submissionId, /^sub-[a-f0-9]{16}$/);
 	assert.equal(body.message, "Your profile has been submitted for review.");
 	assert.equal(response.headers.get("cache-control"), "no-store");
+	assert.equal(receivedNotification?.submitterEmail, "artist@example.com");
+	assert.equal(receivedNotification?.upgradeNotifications, false);
+});
+
+test("reports success without encouraging resubmission when email fails", async () => {
+	let queueCalls = 0;
+	const originalConsoleError = console.error;
+	console.error = () => {};
+	const response = await handleProfileSubmission(
+		jsonRequest(validPayload()),
+		async (proposal) => {
+			queueCalls += 1;
+			return {
+				pullRequestUrl: "https://github.com/Mach-2/LARParts/pull/123",
+				submissionId: proposal.submissionId,
+			};
+		},
+		async () => {
+			throw new Error("Provider unavailable");
+		},
+	);
+	console.error = originalConsoleError;
+	const body = await response.json();
+
+	assert.equal(response.status, 201);
+	assert.equal(body.success, true);
+	assert.equal(body.notificationSent, false);
+	assert.match(body.message, /do not need to resubmit/i);
+	assert.equal(queueCalls, 1);
 });

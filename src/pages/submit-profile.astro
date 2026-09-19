@@ -179,6 +179,16 @@ import "../styles/theme.css";
 						<p class="field-error" id="submitter-email-error" data-error-for="submitterEmail"></p>
 					</div>
 
+					<div class="consent-field">
+						<input id="upgrade-notifications" name="upgradeNotifications" type="checkbox" value="true" aria-describedby="upgrade-notifications-help" />
+						<div>
+							<label for="upgrade-notifications">Notify me about future LARParts upgrades</label>
+							<p id="upgrade-notifications-help">
+								Optional: LARParts may email me when new versions of the website are released.
+							</p>
+						</div>
+					</div>
+
 					<div class="honeypot" aria-hidden="true">
 						<label for="company-website">Leave this field blank</label>
 						<input id="company-website" name="companyWebsite" type="text" tabindex="-1" autocomplete="off" />
@@ -404,6 +414,7 @@ import "../styles/theme.css";
 						contact,
 					},
 					submitterEmail: String(formData.get("submitterEmail") ?? "").trim(),
+					upgradeNotifications: formData.get("upgradeNotifications") === "true",
 					consent: formData.get("consent") === "true",
 					companyWebsite: String(formData.get("companyWebsite") ?? ""),
 				};

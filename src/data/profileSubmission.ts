@@ -121,6 +121,7 @@ export const profileSubmissionSchema = z
 			.max(254)
 			.pipe(z.email("Enter a valid email address."))
 			.transform((email) => email.toLocaleLowerCase()),
+		upgradeNotifications: z.boolean(),
 		consent: z.literal(true, {
 			error: "Consent is required.",
 		}),
