@@ -43,8 +43,9 @@ Open `http://localhost:8888`. The submission endpoint is available at
 The endpoint validates and normalizes submissions, rejects malformed or abusive
 requests, and opens a pull request containing only the public artist record.
 Submission pull requests target the persistent `staging` branch. They never
-target the production `main` branch directly. Administrator email notifications
-are added in a later phase.
+target the production `main` branch directly. After the pull request exists,
+both configured administrators receive a Resend notification containing its
+authenticated GitHub review link.
 
 The Netlify CLI may ask you to sign in or link a Netlify project. Local function
 execution does not require production secrets, but integrations will require
@@ -74,6 +75,17 @@ The GitHub App requires only these repository permissions:
 - Contents: read and write
 - Pull requests: read and write
 - Metadata: read-only
+
+Administrator notifications use Resend. Configure a sending-only API key, a
+sender at a verified domain, and one or more comma-separated recipients:
+
+```dotenv
+EMAIL_PROVIDER_API_KEY=re_example
+NOTIFICATION_EMAILS=admin-one@example.com,admin-two@example.com
+FROM_EMAIL=LARParts Directory <notifications@example.com>
+```
+
+These values are server-only. Do not prefix them with `PUBLIC_` or commit them.
 
 Install the app only on `Mach-2/LARParts`, then set its App ID, installation ID,
 and private key in Netlify's environment-variable settings. For local `.env`

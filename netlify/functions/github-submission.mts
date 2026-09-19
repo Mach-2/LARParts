@@ -322,9 +322,13 @@ The submitter's private email address is intentionally excluded from this pull r
 - [ ] The name and location information are correct
 - [ ] The biography is appropriate for public display
 - [ ] Skills and awards are formatted consistently
-- [ ] Contact details are intentionally public
 - [ ] Image permission has been confirmed, if applicable
 - [ ] The profile is ready to be added to staging
+
+If any items on the checklist require modifications to the artist's profile, such as correcting typos or modifying information, please resolve as follows: 
+* Email the submitter to request permission to make changes
+* Leave a comment on the pull request describing the requested changes and date the submitter was contacted
+* Update the profile as necessary, and mark the checklist items as complete
 
 ### What happens after approval?
 

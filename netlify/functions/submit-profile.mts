@@ -12,11 +12,16 @@ import {
 	SubmissionConflictError,
 	type ProposedSubmission,
 } from "./github-submission.mts";
+import {
+	NotificationError,
+	sendAdministratorNotification,
+} from "./administrator-notification.mts";
 
 export const MAX_REQUEST_BYTES = 64 * 1024;
 
 interface PreparedSubmission extends ProposedSubmission {
 	submitterEmail: string;
+	upgradeNotifications: boolean;
 }
 
 class RequestError extends Error {
@@ -137,6 +142,7 @@ export function prepareSubmission(
 		branchName: `artist-submission/${artistId}-${submissionId.slice(4, 12)}`,
 		submissionId,
 		submitterEmail: submission.submitterEmail,
+		upgradeNotifications: submission.upgradeNotifications,
 	};
 }
 
@@ -150,6 +156,8 @@ function validationDetails(error: ZodError) {
 export async function handleProfileSubmission(
 	request: Request,
 	queueSubmission: typeof queueGitHubSubmission = queueGitHubSubmission,
+	notifyAdministrators: typeof sendAdministratorNotification =
+		sendAdministratorNotification,
 ) {
 	if (request.method !== "POST") {
 		return jsonResponse(
@@ -180,13 +188,37 @@ export async function handleProfileSubmission(
 			branchName: prepared.branchName,
 			submissionId: prepared.submissionId,
 		});
+		let notificationSent = true;
+		try {
+			await notifyAdministrators({
+				artist: prepared.artist,
+				pullRequestUrl: queued.pullRequestUrl,
+				submissionId: queued.submissionId,
+				submitterEmail: prepared.submitterEmail,
+				upgradeNotifications: prepared.upgradeNotifications,
+			});
+		} catch (error) {
+			notificationSent = false;
+			console.error("Administrator notification failed:", {
+				name: error instanceof Error ? error.name : "UnknownError",
+				status: error instanceof NotificationError ? error.status : undefined,
+				providerType:
+					error instanceof NotificationError ? error.providerType : undefined,
+				providerMessage:
+					error instanceof NotificationError ? error.providerMessage : undefined,
+				submissionId: queued.submissionId,
+			});
+		}
 
 		// Do not log the prepared submission: it contains the private submitter email.
 		return jsonResponse(
 			{
 				success: true,
 				submissionId: queued.submissionId,
-				message: "Your profile has been submitted for review.",
+				notificationSent,
+				message: notificationSent
+					? "Your profile has been submitted for review."
+					: "Your profile was received and is awaiting review. The administrator email could not be sent, but you do not need to resubmit.",
 			},
 			201,
 		);
@@ -204,10 +236,15 @@ export async function handleProfileSubmission(
 			);
 		}
 
-		console.error(
-			"Profile submission failed:",
-			error instanceof Error ? error.name : "UnknownError",
-		);
+		if (error instanceof Error) {
+			console.error("Profile submission failed:", {
+				name: error.name,
+				message: error.message,
+				stack: error.stack,
+			});
+		} else {
+			console.error("Profile submission failed: UnknownError");
+		}
 		return jsonResponse(
 			{
 				success: false,
@@ -218,7 +255,9 @@ export async function handleProfileSubmission(
 	}
 }
 
-export default handleProfileSubmission;
+export default function submitProfile(request: Request) {
+	return handleProfileSubmission(request);
+}
 
 export const config: Config = {
 	method: "POST",

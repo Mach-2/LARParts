@@ -22,6 +22,9 @@ async function checkGitHubApp() {
 	console.log("5. Reading and validating directory.json from the base commit...");
 	const directory = await client.getDirectory(baseSha);
 
+	console.log("6. Checking pull-request read permission...");
+	await client.findOpenPullRequest("artist-submission/diagnostic-does-not-exist");
+
 	console.log(`GitHub App check passed. Validated ${directory.profiles.length} profiles.`);
 }
 
@@ -30,7 +33,6 @@ checkGitHubApp().catch((error: unknown) => {
 	if (error instanceof Error) {
 		console.error(`Type: ${error.name}`);
 		console.error(`Reason: ${error.message}`);
-		console.error(error.stack);
 	}
 	process.exitCode = 1;
 });
