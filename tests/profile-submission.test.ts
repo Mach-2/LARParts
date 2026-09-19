@@ -123,7 +123,7 @@ test("rejects a filled honeypot", async () => {
 
 test("rejects a profile that conflicts with the public directory", async () => {
 	const payload = validPayload();
-	payload.profile.displayName = "Adena Darkstar";
+	payload.profile.displayName = "Aera Leyric";
 	payload.profile.kingdom = "Northern Lights";
 
 	const response = await handleProfileSubmission(jsonRequest(payload));

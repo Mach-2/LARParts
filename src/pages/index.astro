@@ -1,6 +1,7 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
 import { artists } from "../data/artistProfile";
+import kingdomDefinitions from "../data/kingdoms.json";
 import "../styles/theme.css";
 
 function slugify(value: string) {
@@ -23,13 +24,23 @@ for (const artist of artists) {
 	kingdomMap.set(kingdom, (kingdomMap.get(kingdom) ?? 0) + 1);
 }
 
-const kingdoms = [...kingdomMap.entries()]
-	.map(([name, artistCount]) => ({
-		label: "Kingdom",
-		name,
-		artistCount,
-		href: `/kingdoms/${slugify(name)}/`,
-		image: name === "Northern Lights" ? "/photos/NL_Heraldry1.png" : "",
+const configuredKingdomNames = new Set(
+	kingdomDefinitions.map((definition) => definition.name),
+);
+const unconfiguredKingdoms = [...kingdomMap.keys()]
+	.filter((name) => !configuredKingdomNames.has(name))
+	.map((name) => ({ name, fullName: name }));
+
+const kingdoms = [...kingdomDefinitions, ...unconfiguredKingdoms]
+	.map((definition) => ({
+		name: definition.name,
+		fullName: definition.fullName,
+		artistCount: kingdomMap.get(definition.name) ?? 0,
+		href: `/kingdoms/${slugify(definition.name)}/`,
+		image:
+			"image" in definition && typeof definition.image === "string"
+				? definition.image
+				: "",
 	}))
 	.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -65,7 +76,7 @@ const artistCount = artists.length;
 				</div>
 			</a>
 
-			<section class="kingdom-grid" aria-label="Kingdoms">
+			<section class="kingdom-grid" aria-label="Kingdoms and principalities">
 				{
 					kingdoms.map((kingdom) => (
 						<a class="kingdom-card" href={kingdom.href}>
@@ -78,8 +89,7 @@ const artistCount = artists.length;
 							</div>
 
 							<div class="kingdom-content">
-								<p class="card-label">Kingdom</p>
-								<h2>{kingdom.name}</h2>
+								<h2>{kingdom.fullName}</h2>
 								<p>
 									{kingdom.artistCount}{" "}
 									{kingdom.artistCount === 1 ? "artist" : "artists"}
@@ -135,7 +145,7 @@ const artistCount = artists.length;
 
 	.kingdom-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 1.5rem;
 		max-width: 1200px;
 	}
@@ -205,10 +215,10 @@ const artistCount = artists.length;
 
 	.kingdom-card {
 		display: grid;
-		grid-template-columns: 88px minmax(0, 1fr);
+		grid-template-columns: 76px minmax(0, 1fr);
 		align-items: center;
-		min-height: 148px;
-		padding: 1.25rem;
+		min-height: 120px;
+		padding: 1rem;
 		color: inherit;
 		text-decoration: none;
 		background: var(--color-card-soft);
@@ -222,8 +232,8 @@ const artistCount = artists.length;
 	}
 
 	.kingdom-mark {
-		width: 72px;
-		height: 88px;
+		width: 64px;
+		height: 72px;
 		display: grid;
 		place-items: center;
 	}
@@ -254,7 +264,7 @@ const artistCount = artists.length;
 
 	.kingdom-content h2 {
 		margin: 0 0 0.45rem;
-		font-size: 1.45rem;
+		font-size: 1.3rem;
 		line-height: 1.15;
 	}
 
@@ -262,6 +272,18 @@ const artistCount = artists.length;
 		margin: 0;
 		color: var(--color-muted);
 		font-size: 0.98rem;
+	}
+
+	@media (max-width: 960px) {
+		.kingdom-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 640px) {
+		.kingdom-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	@media (max-width: 560px) {

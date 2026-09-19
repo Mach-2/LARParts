@@ -13,12 +13,19 @@ export function getStaticPaths() {
 			.trim()
 			.replace(/[^a-z0-9]+/g, "-")
 			.replace(/^-|-$/g, "");
-	const kingdoms = [
+	const artistKingdoms = [
 		...new Set(
 			artists
 				.map((artist) => artist.kingdom)
 				.filter((kingdom): kingdom is string => Boolean(kingdom)),
 		),
+	];
+	const configuredKingdomNames = new Set(
+		kingdomDefinitions.map((definition) => definition.name),
+	);
+	const kingdoms = [
+		...kingdomDefinitions.map((definition) => definition.name),
+		...artistKingdoms.filter((kingdom) => !configuredKingdomNames.has(kingdom)),
 	];
 
 	return kingdoms.map((kingdom) => ({
@@ -75,7 +82,11 @@ const skills = [
 				</p>
 			</section>
 
-			<section class="filter-panel" aria-label={`Filter ${kingdom} artists`}>
+			<section
+				class="filter-panel"
+				aria-label={`Filter ${kingdom} artists`}
+				hidden={kingdomArtists.length === 0}
+			>
 				<div class="filter-field">
 					<label for="artist-search">Search</label>
 					<input id="artist-search" type="search" placeholder="Name, skill, park" data-filter-search />
@@ -117,9 +128,21 @@ const skills = [
 				</div>
 			</section>
 
-			<p class="filter-count" data-filter-count>
+			<p class="filter-count" data-filter-count hidden={kingdomArtists.length === 0}>
 				Showing {kingdomArtists.length} {kingdomArtists.length === 1 ? "artist" : "artists"}
 			</p>
+
+			{
+				kingdomArtists.length === 0 && (
+					<section class="supported-empty-state" aria-labelledby="empty-directory-heading">
+						<h2 id="empty-directory-heading">It's empty in here...</h2>
+						<p>
+							No artists from {fullKingdomName} have submitted a profile yet. You could be the first!
+						</p>
+						<a href="/submit-profile/">Submit an artist profile</a>
+					</section>
+				)
+			}
 
 			<p class="empty-state" data-empty-state hidden>
 				No artists match those filters.
@@ -311,6 +334,31 @@ const skills = [
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 1.5rem;
 		max-width: 1200px;
+	}
+
+	.supported-empty-state {
+		max-width: 42rem;
+		padding: 1.5rem;
+		background: var(--color-card-soft);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		box-shadow: 0 10px 30px var(--shadow-card);
+	}
+
+	.supported-empty-state h2 {
+		margin: 0 0 0.6rem;
+		font-size: 1.5rem;
+	}
+
+	.supported-empty-state p {
+		margin: 0 0 1rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.supported-empty-state a {
+		font-weight: 700;
+		color: var(--color-primary);
 	}
 
 	@media (max-width: 980px) {
