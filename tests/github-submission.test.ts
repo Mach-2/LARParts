@@ -49,26 +49,10 @@ function jsonResponse(value: unknown, status = 200) {
 	return Response.json(value, { status });
 }
 
-test("inserts new artists before placeholder records", () => {
-	const profilesWithPlaceholder: ArtistProfile[] = [
-		...artists,
-		{
-			id: "placeholder-test",
-			firstName: "Placeholder",
-			displayName: "Placeholder",
-			kingdom: "Test Kingdom",
-			awards: [],
-			skills: [],
-			contact: {},
-		},
-	];
-	const inserted = insertArtist(profilesWithPlaceholder, artist);
-	const artistIndex = inserted.findIndex((profile) => profile.id === artist.id);
-	const placeholderIndex = inserted.findIndex((profile) =>
-		profile.id.startsWith("placeholder-"),
-	);
-	assert.equal(artistIndex, placeholderIndex - 1);
-	assert.equal(inserted.length, profilesWithPlaceholder.length + 1);
+test("appends new artists to the directory", () => {
+	const inserted = insertArtist(artists, artist);
+	assert.deepEqual(inserted.at(-1), artist);
+	assert.equal(inserted.length, artists.length + 1);
 });
 
 test("builds a readable pull request body without private email", () => {

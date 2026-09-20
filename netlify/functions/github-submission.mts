@@ -253,12 +253,7 @@ export function insertArtist(
 	profiles: ArtistProfile[],
 	artist: ArtistProfile,
 ) {
-	const insertionIndex = profiles.findIndex((profile) =>
-		profile.id.startsWith("placeholder-"),
-	);
-	const nextProfiles = [...profiles];
-	nextProfiles.splice(insertionIndex === -1 ? profiles.length : insertionIndex, 0, artist);
-	return nextProfiles;
+	return [...profiles, artist];
 }
 
 function markdownValue(value?: string) {

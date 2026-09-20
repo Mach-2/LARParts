@@ -5,6 +5,7 @@ import {
 	handleProfileSubmission,
 	prepareSubmission,
 } from "../netlify/functions/submit-profile.mts";
+import type { AdministratorNotification } from "../netlify/functions/administrator-notification.mts";
 import { profileSubmissionSchema } from "../src/data/profileSubmission";
 
 const endpoint = "http://localhost/.netlify/functions/submit-profile";
@@ -169,7 +170,7 @@ test("normalizes input and keeps private fields out of the public artist", () =>
 });
 
 test("returns a structured success response", async () => {
-	let receivedNotification: Record<string, unknown> | undefined;
+	let receivedNotification: AdministratorNotification | undefined;
 	const response = await handleProfileSubmission(
 		jsonRequest(validPayload()),
 		async (proposal) => ({
