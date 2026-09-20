@@ -1,98 +1,121 @@
 [
   {
     "name": "13 Roads",
-    "fullName": "The Kingdom of 13 Roads"
+    "fullName": "The Kingdom of 13 Roads",
+    "image": "/photos/13R_Heraldry.png"
   },
   {
     "name": "Blackspire",
-    "fullName": "The Kingdom of Blackspire"
+    "fullName": "The Kingdom of Blackspire",
+    "image": "/photos/BS_Heraldry.png"
   },
   {
     "name": "Burning Lands",
-    "fullName": "The Kingdom of Burning Lands"
+    "fullName": "The Kingdom of Burning Lands",
+    "image": "/photos/BL_Heraldry.jpg"
   },
   {
     "name": "Celestial Kingdom",
-    "fullName": "The Celestial Kingdom"
+    "fullName": "The Celestial Kingdom",
+    "image": "/photos/CK_Heraldry.jpg"
   },
   {
     "name": "Crystal Groves",
-    "fullName": "The Kingdom of Crystal Groves"
+    "fullName": "The Kingdom of Crystal Groves",
+    "image": "/photos/CG_Heraldry.png"
   },
   {
     "name": "Desert Winds",
-    "fullName": "The Kingdom of the Desert Winds"
+    "fullName": "The Kingdom of the Desert Winds",
+    "image": "/photos/DW_Heraldry.jpg"
   },
   {
     "name": "Dragonspine",
-    "fullName": "The Kingdom of Dragonspine" 
+    "fullName": "The Kingdom of Dragonspine",
+    "image": "/photos/DS_Heraldry.png"
   },
   {
     "name": "Emerald Hills",
-    "fullName": "The Kingdom of the Emerald Hills"
+    "fullName": "The Kingdom of the Emerald Hills",
+    "image": "/photos/EH_Heraldry.png"
   },
   {
     "name": "Freeholds",
-    "fullName": "The Freeholds of Amtgard"
+    "fullName": "The Freeholds of Amtgard",
+    "image": "/photos/FH_Heraldry.png"
   },
   {
     "name": "Golden Plains",
-    "fullName": "The Kingdom of the Golden Plains"
+    "fullName": "The Kingdom of the Golden Plains",
+    "image": "/photos/GP_Heraldry.jpg"
   },
   {"name": "Goldenvale",
-    "fullName": "The Kingdom of Goldenvale"
+    "fullName": "The Kingdom of Goldenvale",
+    "image": "/photos/GV_Heraldry.png"
   },
   {
     "name": "Iron Mountains",
-    "fullName": "The Empire of the Iron Mountains"
+    "fullName": "The Empire of the Iron Mountains",
+    "image": "/photos/IM_Heraldry.png"
   },
   {
     "name": "Neverwinter",
-    "fullName": "The Kingdom of Neverwinter"
+    "fullName": "The Kingdom of Neverwinter",
+    "image": "/photos/NW_Heraldry.jpg"
   },
   {
     "name": "Nine Blades",
-    "fullName": "The Kingdom of the Nine Blades"
+    "fullName": "The Kingdom of the Nine Blades",
+    "image": "/photos/NB_Heraldry.png"
   },
   {
     "name": "Northern Lights",
     "fullName": "The Kingdom of Northern Lights",
-    "image": "/photos/NL_Heraldry1.png"
+    "image": "/photos/NL_Heraldry.png"
   },
   {
     "name": "Polaris", 
-    "fullName": "The Kingdom of Polaris"
+    "fullName": "The Kingdom of Polaris",
+    "image": "/photos/PL_Heraldry.jpg"
   },
   {
     "name": "Rising Winds",
-    "fullName": "The Kingdom of the Rising Winds"
+    "fullName": "The Kingdom of the Rising Winds",
+    "image": "/photos/RW_Heraldry.jpg"
   },
   {
     "name": "Tal Dagore",
-    "fullName": "The Kingdom of Tal Dagore"
+    "fullName": "The Kingdom of Tal Dagore",
+    "image": "/photos/TD_Heraldry.png"
   },
   {
     "name": "Viridian Outlands",
-    "fullName": "The Kingdom of Viridian Outlands"
+    "fullName": "The Kingdom of Viridian Outlands",
+    "image": "/photos/VO_Heraldry.png"
   },
   {
     "name": "Wetlands",
-    "fullName": "The Kingdom of the Wetlands"
+    "fullName": "The Kingdom of the Wetlands",
+    "image": "/photos/WL_Heraldry.png"
   },
   {
     "name": "Winter's Edge",
-    "fullName": "The Kingdom of Winter's Edge"
+    "fullName": "The Kingdom of Winter's Edge",
+    "image": "/photos/WE_Heraldry.png"
   },
   {
     "name": "Golden City",
-    "fullName": "The Principality of the Golden City"
+    "fullName": "The Principality of the Golden City",
+    "image": "/photos/GC_Heraldry.jpg"
   },
   {
     "name": "Painted Skies",
-    "fullName": "The Principality of the Painted Skies"
+    "fullName": "The Principality of the Painted Skies",
+    "image": "/photos/PS_Heraldry.png"
   },
   {
     "name": "Crimson Sands",
-    "fullName": "The Principality of the Crimson Sands"
+    "fullName": "The Principality of the Crimson Sands",
+    "image": "/photos/CS_Heraldry.jpg"
   }
 ]
