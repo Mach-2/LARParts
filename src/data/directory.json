@@ -19,5 +19,28 @@
       "discord": ".mach2"
     },
     "photoUrl": "/photos/Aera_Leyric.jpg"
+  },
+  {
+    "id": "artist-083e348625123631",
+    "displayName": "Amaryllis Hasset",
+    "kingdom": "Wetlands",
+    "homePark": "Granite Spyre",
+    "awards": [
+      "Master Garber",
+      "Serpent Knight"
+    ],
+    "skills": [
+      "Sewing",
+      "Weaving",
+      "Photography",
+      "Painting",
+      "Cooking"
+    ],
+    "memberSince": "Player Since 2022",
+    "biography": "Degree in Theatrical Costume Design, with professional sewing experience. Currently working in the field of upholstery. Taught myself how to sew at 13, and have progressively gotten better at it over time. Dabbled in other mediums and always down to learn something new!",
+    "contact": {
+      "website": "https://djelkmann.wixsite.com/website"
+    },
+    "photoUrl": "https://lh3.googleusercontent.com/pw/AP1GczOjlr2-R-rDy2M38ab923ncv8tvNsrClsHb2nOXi7JpEyse70UtDOW2jJGIzhQrbbfXl2i-EUh5H4nIr9Mt0LXLQGo1jKp4wC8TFMUtZ7MSFQvxCteMoHf3C9thfAO5mNVBAvJBJ5K3IfL0sOoyduIHiQ=w665-h887-s-no-gm?authuser=0"
   }
 ]
