@@ -12,8 +12,6 @@ export interface ArtistContact {
 
 export interface ArtistProfile {
 	id: string;
-	firstName: string;
-	lastName?: string;
 	displayName: string;
 	kingdom?: string;
 	homePark?: string;
@@ -44,8 +42,6 @@ export const artistProfileSchema: z.ZodType<ArtistProfile> = z
 			.string()
 			.trim()
 			.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "ID must be URL-safe"),
-		firstName: z.string().trim().min(1),
-		lastName: optionalNonEmptyString,
 		displayName: z.string().trim().min(1),
 		kingdom: optionalNonEmptyString,
 		homePark: optionalNonEmptyString,

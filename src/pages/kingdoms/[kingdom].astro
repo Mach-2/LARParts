@@ -2,6 +2,7 @@
 import ArtistCard from "../../components/ArtistCard.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
+import ContactBar from "../../components/ContactBar.astro";
 import { artists } from "../../data/artistProfile";
 import kingdomDefinitions from "../../data/kingdoms.json";
 import "../../styles/theme.css";
@@ -151,6 +152,7 @@ const skills = [
 				{kingdomArtists.map((artist) => <ArtistCard artist={artist} />)}
 			</section>
 		</main>
+		<ContactBar />
 
 		<script>
 			// @ts-nocheck -- Legacy DOM filter script; type-hardening is outside Phase 1.

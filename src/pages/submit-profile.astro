@@ -1,5 +1,6 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
+import ContactBar from "../components/ContactBar.astro";
 import kingdoms from "../data/kingdoms.json";
 import "../styles/theme.css";
 ---
@@ -54,18 +55,6 @@ import "../styles/theme.css";
 							<input id="display-name" name="displayName" type="text" required minlength="1" maxlength="100" autocomplete="nickname" aria-describedby="display-name-help display-name-error" />
 							<p class="field-help" id="display-name-help">The name visitors should see on your profile.</p>
 							<p class="field-error" id="display-name-error" data-error-for="displayName"></p>
-						</div>
-
-						<div class="form-field">
-							<label for="first-name">First name <span aria-hidden="true">*</span></label>
-							<input id="first-name" name="firstName" type="text" required minlength="1" maxlength="60" autocomplete="given-name" aria-describedby="first-name-error" />
-							<p class="field-error" id="first-name-error" data-error-for="firstName"></p>
-						</div>
-
-						<div class="form-field">
-							<label for="last-name">Last name <span class="optional">(optional)</span></label>
-							<input id="last-name" name="lastName" type="text" maxlength="60" autocomplete="family-name" aria-describedby="last-name-error" />
-							<p class="field-error" id="last-name-error" data-error-for="lastName"></p>
 						</div>
 
 						<div class="form-field">
@@ -214,6 +203,7 @@ import "../styles/theme.css";
 				</div>
 			</form>
 		</main>
+		<ContactBar message="Need to make a change to an existing profile? Contact us to request any changes at" />
 
 		<script>
 			const ENDPOINT = "/.netlify/functions/submit-profile";
@@ -401,8 +391,6 @@ import "../styles/theme.css";
 				return {
 					profile: {
 						displayName: String(formData.get("displayName") ?? "").trim(),
-						firstName: String(formData.get("firstName") ?? "").trim(),
-						lastName: optionalValue(formData, "lastName"),
 						kingdom: String(formData.get("kingdom") ?? "").trim(),
 						homePark: String(formData.get("homePark") ?? "").trim(),
 						skills: splitList(String(formData.get("skills") ?? "")),

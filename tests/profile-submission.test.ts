@@ -14,8 +14,6 @@ function validPayload() {
 	return {
 		profile: {
 			displayName: "Test Artist",
-			firstName: "Test",
-			lastName: "Artist",
 			kingdom: "Iron Mountains",
 			homePark: "Example Park",
 			skills: ["Leatherwork", "Sewing"],

@@ -7,9 +7,12 @@ interface Props {
 
 const { artist } = Astro.props;
 
-const initials = [artist.firstName, artist.lastName ?? ""]
-	.map((name) => name.trim().charAt(0))
+const initials = artist.displayName
+	.trim()
+	.split(/\s+/)
+	.map((name) => name.charAt(0))
 	.filter(Boolean)
+	.slice(0, 2)
 	.join("");
 const searchableText = [
 	artist.displayName,

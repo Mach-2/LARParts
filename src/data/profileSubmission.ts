@@ -81,8 +81,6 @@ const requiredName = (maximum: number) =>
 export const publicProfileSubmissionSchema = z
 	.object({
 		displayName: requiredName(100),
-		firstName: requiredName(60),
-		lastName: optionalText(60),
 		kingdom: z
 			.string()
 			.transform(collapseWhitespace)

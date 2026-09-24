@@ -9,8 +9,6 @@ import type { ArtistProfile } from "../src/data/artistProfile";
 
 const artist: ArtistProfile = {
 	id: "artist-0123456789abcdef",
-	firstName: "Test",
-	lastName: "Artist",
 	displayName: "Test Artist",
 	kingdom: "Iron Mountains",
 	homePark: "Example Park",
