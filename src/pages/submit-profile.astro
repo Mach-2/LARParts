@@ -1,5 +1,7 @@
 ---
 import SiteHeader from "../components/SiteHeader.astro";
+import ContactBar from "../components/ContactBar.astro";
+import { artistTitles } from "../data/artistTitles";
 import kingdoms from "../data/kingdoms.json";
 import "../styles/theme.css";
 ---
@@ -57,18 +59,6 @@ import "../styles/theme.css";
 						</div>
 
 						<div class="form-field">
-							<label for="first-name">First name <span aria-hidden="true">*</span></label>
-							<input id="first-name" name="firstName" type="text" required minlength="1" maxlength="60" autocomplete="given-name" aria-describedby="first-name-error" />
-							<p class="field-error" id="first-name-error" data-error-for="firstName"></p>
-						</div>
-
-						<div class="form-field">
-							<label for="last-name">Last name <span class="optional">(optional)</span></label>
-							<input id="last-name" name="lastName" type="text" maxlength="60" autocomplete="family-name" aria-describedby="last-name-error" />
-							<p class="field-error" id="last-name-error" data-error-for="lastName"></p>
-						</div>
-
-						<div class="form-field">
 							<label for="kingdom">Kingdom <span aria-hidden="true">*</span></label>
 							<select id="kingdom" name="kingdom" required aria-describedby="kingdom-error">
 								<option value="">Choose a kingdom</option>
@@ -91,10 +81,19 @@ import "../styles/theme.css";
 						</div>
 
 						<div class="form-field field-wide">
-							<label for="awards">Awards and titles <span class="optional">(optional)</span></label>
-							<textarea id="awards" name="awards" maxlength="400" rows="2" aria-describedby="awards-help awards-error"></textarea>
-							<p class="field-help" id="awards-help">Separate awards with commas. Add up to 10.</p>
-							<p class="field-error" id="awards-error" data-error-for="awards"></p>
+							<fieldset class="checkbox-group" aria-describedby="awards-help awards-error">
+								<legend>Awards and titles <span class="optional">(optional)</span></legend>
+								<p class="field-help" id="awards-help">Select any titles that apply.</p>
+								<div class="checkbox-options">
+									{artistTitles.map((title) => (
+										<label class="checkbox-option">
+											<input name="awards" type="checkbox" value={title} />
+											<span>{title}</span>
+										</label>
+									))}
+								</div>
+								<p class="field-error" id="awards-error" data-error-for="awards"></p>
+							</fieldset>
 						</div>
 
 						<div class="form-field field-wide">
@@ -168,13 +167,12 @@ import "../styles/theme.css";
 				<section class="form-section" aria-labelledby="submission-heading">
 					<div class="section-heading">
 						<h2 id="submission-heading">Submission details</h2>
-						<p>Your email is only for follow-up about this submission. It will not be added to your public profile.</p>
+						<p>Your email will not be added to your public profile. It may be used by administrators for follow-up if there are errors with your submission, or (optionally) to receive updates about new LARParts.com upgrades.</p>
 					</div>
 
 					<div class="form-field">
 						<label for="submitter-email">Your email address <span aria-hidden="true">*</span></label>
 						<input id="submitter-email" name="submitterEmail" type="email" required maxlength="254" autocomplete="email" aria-describedby="submitter-email-help submitter-email-error" />
-						<p class="field-help" id="submitter-email-help">Private: directory administrators only.</p>
 						<p class="field-error" id="submitter-email-error" data-error-for="submitterEmail"></p>
 					</div>
 
@@ -214,11 +212,11 @@ import "../styles/theme.css";
 				</div>
 			</form>
 		</main>
+		<ContactBar message="Need to make a change to an existing profile? Contact us to request any changes at" />
 
 		<script>
 			const ENDPOINT = "/.netlify/functions/submit-profile";
 			const MAX_SKILLS = 20;
-			const MAX_AWARDS = 10;
 
 			function requireElement<T extends Element>(selector: string): T {
 				const element = document.querySelector<T>(selector);
@@ -237,7 +235,6 @@ import "../styles/theme.css";
 			const submitButton = requireElement<HTMLButtonElement>("[data-submit-button]");
 			const submitLabel = requireElement<HTMLElement>("[data-submit-label]");
 			const skillsInput = requireElement<HTMLTextAreaElement>("#skills");
-			const awardsInput = requireElement<HTMLTextAreaElement>("#awards");
 			const urlInputs = Array.from(form.querySelectorAll<HTMLInputElement>('input[type="url"]'));
 			const validatedInputs = Array.from(
 				form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input:not(.honeypot input), textarea"),
@@ -360,7 +357,6 @@ import "../styles/theme.css";
 					validateUrl(field);
 				}
 				validateList(skillsInput, "Skills", MAX_SKILLS);
-				validateList(awardsInput, "Awards", MAX_AWARDS);
 				validateConsent();
 				return form.checkValidity();
 			}
@@ -401,12 +397,13 @@ import "../styles/theme.css";
 				return {
 					profile: {
 						displayName: String(formData.get("displayName") ?? "").trim(),
-						firstName: String(formData.get("firstName") ?? "").trim(),
-						lastName: optionalValue(formData, "lastName"),
 						kingdom: String(formData.get("kingdom") ?? "").trim(),
 						homePark: String(formData.get("homePark") ?? "").trim(),
 						skills: splitList(String(formData.get("skills") ?? "")),
-						awards: splitList(String(formData.get("awards") ?? "")),
+						awards: formData
+							.getAll("awards")
+							.map((value) => String(value).trim())
+							.filter(Boolean),
 						memberSince: optionalValue(formData, "memberSince"),
 						biography: optionalValue(formData, "biography"),
 						photoUrl: optionalValue(formData, "photoUrl"),
@@ -620,9 +617,57 @@ import "../styles/theme.css";
 	}
 
 	.form-field label,
+	.checkbox-group legend,
 	.consent-field label {
 		font-weight: 700;
 		color: var(--color-primary);
+	}
+
+	.checkbox-group {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	.checkbox-group legend {
+		padding: 0;
+	}
+
+	.checkbox-options {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+		justify-items: start;
+	}
+
+	.checkbox-option {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: center;
+		gap: 0.65rem;
+		padding: 0.7rem 0.8rem;
+		background: #fffffb;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		color: var(--color-text);
+		font-weight: 400;
+		width: min(100%, 18rem);
+		max-width: 100%;
+	}
+
+	.checkbox-option input {
+		width: 1.1rem;
+		height: 1.1rem;
+		margin: 0;
+		accent-color: var(--color-primary);
+	}
+
+	.checkbox-option:has(input:focus-visible) {
+		outline: 3px solid rgba(111, 143, 79, 0.3);
+		outline-offset: 2px;
+		border-color: var(--color-accent);
 	}
 
 	.optional {
@@ -753,5 +798,6 @@ import "../styles/theme.css";
 		.field-wide {
 			grid-column: auto;
 		}
+
 	}
 </style>

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import kingdomDefinitions from "./kingdoms.json";
+import { artistTitles, type ArtistTitle } from "./artistTitles";
 import {
 	artistProfileSchema,
 	type ArtistProfile,
@@ -8,6 +9,7 @@ import {
 const kingdomNames = new Set(
 	kingdomDefinitions.map((definition) => definition.name),
 );
+const artistTitleNames = new Set<ArtistTitle>(artistTitles);
 
 function collapseWhitespace(value: string) {
 	return value.trim().replace(/\s+/g, " ");
@@ -81,15 +83,23 @@ const requiredName = (maximum: number) =>
 export const publicProfileSubmissionSchema = z
 	.object({
 		displayName: requiredName(100),
-		firstName: requiredName(60),
-		lastName: optionalText(60),
 		kingdom: z
 			.string()
 			.transform(collapseWhitespace)
 			.refine((kingdom) => kingdomNames.has(kingdom), "Choose a valid kingdom."),
 		homePark: requiredName(100),
 		skills: uniqueTextList("skill", 20, 80).min(1),
-		awards: uniqueTextList("award", 10, 120),
+		awards: uniqueTextList("award", artistTitles.length, 120).superRefine((items, context) => {
+			for (const [index, item] of items.entries()) {
+				if (!artistTitleNames.has(item as ArtistTitle)) {
+					context.addIssue({
+						code: "custom",
+						message: `Choose a valid title: ${item}`,
+						path: [index],
+					});
+				}
+			}
+		}),
 		memberSince: optionalText(100).transform((value) =>
 			value && /^\d{4}$/.test(value) ? `Player Since ${value}` : value,
 		),

@@ -14,8 +14,6 @@ function validPayload() {
 	return {
 		profile: {
 			displayName: "Test Artist",
-			firstName: "Test",
-			lastName: "Artist",
 			kingdom: "Iron Mountains",
 			homePark: "Example Park",
 			skills: ["Leatherwork", "Sewing"],
@@ -98,6 +96,7 @@ test("rejects invalid fields, duplicate list values, and insecure URLs", async (
 	const payload = validPayload();
 	payload.profile.kingdom = "Made Up Kingdom";
 	payload.profile.skills = ["Sewing", " sewing "];
+	payload.profile.awards = ["Master Owl", "Made Up Title"];
 	payload.profile.photoUrl = "http://example.com/photo.jpg";
 	payload.submitterEmail = "not-an-email";
 	payload.consent = false;
@@ -111,6 +110,15 @@ test("rejects invalid fields, duplicate list values, and insecure URLs", async (
 	assert.ok(Array.isArray(body.errors));
 	assert.ok(body.errors.length >= 4);
 	assert.equal(JSON.stringify(body).includes("stack"), false);
+});
+
+test("accepts multiple configured titles", () => {
+	const payload = validPayload();
+	payload.profile.awards = ["Serpent Knight", "Master Owl"];
+
+	const parsed = profileSubmissionSchema.parse(payload);
+
+	assert.deepEqual(parsed.profile.awards, ["Serpent Knight", "Master Owl"]);
 });
 
 test("rejects a filled honeypot", async () => {
