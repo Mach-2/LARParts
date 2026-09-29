@@ -1,5 +1,4 @@
 import { z } from "zod";
-import directoryData from "./directory.json";
 
 export interface ArtistContact {
 	website?: string;
@@ -65,6 +64,7 @@ export const artistDirectorySchema = z
 	.array(artistProfileSchema)
 	.superRefine((profiles, context) => {
 		const seenIds = new Set<string>();
+		const seenIdentities = new Set<string>();
 
 		for (const [index, profile] of profiles.entries()) {
 			if (seenIds.has(profile.id)) {
@@ -76,7 +76,21 @@ export const artistDirectorySchema = z
 			}
 
 			seenIds.add(profile.id);
+			const identity = JSON.stringify([profile.displayName.toLowerCase(), profile.kingdom?.toLowerCase() ?? ""]);
+			if (seenIdentities.has(identity)) {
+				context.addIssue({ code: "custom", message: "Duplicate artist name and kingdom", path: [index, "displayName"] });
+			}
+			seenIdentities.add(identity);
 		}
 	});
 
-export const artists: ArtistProfile[] = artistDirectorySchema.parse(directoryData);
+export function parseArtistFiles(files: Record<string, unknown>): ArtistProfile[] {
+	const profiles = Object.entries(files).sort(([a], [b]) => a.localeCompare(b)).map(([path, data]) => {
+		const profile = artistProfileSchema.parse(data);
+		if (path.split("/").at(-1) !== `${profile.id}.json`) {
+			throw new Error(`Artist filename must match its ID: ${path}`);
+		}
+		return profile;
+	});
+	return artistDirectorySchema.parse(profiles);
+}
