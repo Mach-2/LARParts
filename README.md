@@ -95,6 +95,22 @@ browser.
 
 ## Branch workflow
 
+Artist records live in `src/data/artists/<artist-id>.json`, with one public
+profile per file. The filename must match the record's `id`. Astro loads and
+validates these files during static generation; there is no committed aggregate
+directory or shared index to update. Duplicate IDs and case-insensitive
+name/kingdom combinations fail validation.
+
+Each submission creates only its artist file, based on a pinned staging commit.
+The function checks that commit's profiles for duplicates before opening a PR.
+The staging branch must contain the migrated artist directory before the updated
+function is deployed. Existing PRs that modify `directory.json` need to be
+converted separately before approval.
+
+Run `npm test` and `npm run astro -- check` to verify changes, then run
+`npm run build` locally to confirm static generation. No new environment
+variables or GitHub App permissions are needed for this storage format.
+
 - `main` is the production branch.
 - `staging` contains approved profiles waiting for a production release.
 - `artist-submission/*` branches contain one proposed public profile and open a

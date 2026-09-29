@@ -4,12 +4,12 @@ import test from "node:test";
 import {
 	buildPullRequestBody,
 	GitHubClient,
-	insertArtist,
+	SubmissionConflictError,
 	queueGitHubSubmission,
 	type GitHubSubmissionConfig,
 	type ProposedSubmission,
 } from "../netlify/functions/github-submission.mts";
-import { artists, type ArtistProfile } from "../src/data/artistProfile";
+import { type ArtistProfile } from "../src/data/artistProfile";
 
 const privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 })
 	.privateKey.export({ type: "pkcs8", format: "pem" })
@@ -50,10 +50,39 @@ function jsonResponse(value: unknown, status = 200) {
 	return Response.json(value, { status });
 }
 
-test("appends new artists to the directory", () => {
-	const inserted = insertArtist(artists, artist);
-	assert.deepEqual(inserted.at(-1), artist);
-	assert.equal(inserted.length, artists.length + 1);
+function directoryResponse(profiles: ArtistProfile[]) {
+	return jsonResponse({ truncated: false, tree: [
+		{ path: "src/data/artists", type: "tree" },
+		...profiles.map((profile) => ({ path: `src/data/artists/${profile.id}.json`, type: "blob" })),
+	] });
+}
+
+function profileResponse(profile: ArtistProfile) {
+	return jsonResponse({ content: Buffer.from(JSON.stringify(profile)).toString("base64"), encoding: "base64" });
+}
+
+test("rejects duplicate IDs and identities from the current base commit before creating a branch", async () => {
+	for (const existing of [artist, { ...artist, id: "another-artist", displayName: artist.displayName.toUpperCase() }]) {
+		const fetchMock: typeof fetch = async (input, init = {}) => {
+			const url = String(input);
+			if (url.includes("/access_tokens")) return jsonResponse({ token: "installation-token" });
+			assert.equal(init.method ?? "GET", "GET");
+			if (url.includes("/pulls?")) return jsonResponse([]);
+			if (url.endsWith("/git/ref/heads/staging")) return jsonResponse({ object: { sha: "current-base" } });
+			if (url.endsWith("/git/trees/current-base?recursive=1")) return directoryResponse([existing]);
+			if (url.endsWith(`/contents/src/data/artists/${existing.id}.json?ref=current-base`)) return profileResponse(existing);
+			throw new Error(`Unexpected request: ${url}`);
+		};
+		await assert.rejects(queueGitHubSubmission(makeProposal(), config, new GitHubClient(config, fetchMock)), SubmissionConflictError);
+	}
+});
+
+test("fails closed when the base has not been migrated or its tree is truncated", async () => {
+	for (const tree of [{ truncated: false, tree: [] }, { truncated: true, tree: [] }]) {
+		const fetchMock: typeof fetch = async (input) => String(input).includes("/access_tokens")
+			? jsonResponse({ token: "installation-token" }) : jsonResponse(tree);
+		await assert.rejects(new GitHubClient(config, fetchMock).getDirectory("base"), /Migrate|incomplete/);
+	}
 });
 
 test("builds a readable pull request body without private email", () => {
@@ -70,7 +99,7 @@ test("builds a readable pull request body without private email", () => {
 	assert.equal(body.includes("artist@example.com"), false);
 });
 
-test("creates a branch, one directory commit, and a pull request against staging", async () => {
+test("creates only the proposed artist file and opens a pull request against staging", async () => {
 	const proposal = makeProposal();
 	const calls: Array<{ body?: unknown; method: string; url: string }> = [];
 	const fetchMock: typeof fetch = async (input, init = {}) => {
@@ -82,18 +111,12 @@ test("creates a branch, one directory commit, and a pull request against staging
 		if (url.includes("/access_tokens")) return jsonResponse({ token: "installation-token" });
 		if (url.includes("/pulls?") && method === "GET") return jsonResponse([]);
 		if (url.endsWith("/git/ref/heads/staging")) return jsonResponse({ object: { sha: "base-sha" } });
-		if (url.includes("/contents/src/data/directory.json?ref=base-sha")) {
-			return jsonResponse({
-				content: Buffer.from(`${JSON.stringify(artists, null, 2)}\n`).toString("base64"),
-				encoding: "base64",
-				sha: "directory-sha",
-			});
-		}
+		if (url.endsWith("/git/trees/base-sha?recursive=1")) return directoryResponse([]);
 		if (url.includes("/git/ref/heads/artist-submission/")) {
 			return jsonResponse({ message: "Not Found" }, 404);
 		}
 		if (url.endsWith("/git/refs") && method === "POST") return jsonResponse({}, 201);
-		if (url.endsWith("/contents/src/data/directory.json") && method === "PUT") return jsonResponse({}, 200);
+		if (url.endsWith(`/contents/src/data/artists/${artist.id}.json`) && method === "PUT") return jsonResponse({}, 201);
 		if (url.endsWith("/pulls") && method === "POST") {
 			return jsonResponse({ html_url: "https://github.com/Mach-2/LARParts/pull/123", number: 123, head: { ref: proposal.branchName } }, 201);
 		}
@@ -113,7 +136,7 @@ test("creates a branch, one directory commit, and a pull request against staging
 		sha: "base-sha",
 	});
 	const contentCalls = calls.filter((call) => call.url.includes("/contents/"));
-	assert.equal(contentCalls.length, 2);
+	assert.equal(contentCalls.length, 1);
 	const updateBody = contentCalls.find((call) => call.method === "PUT")?.body as {
 		branch: string;
 		content: string;
@@ -121,9 +144,10 @@ test("creates a branch, one directory commit, and a pull request against staging
 	};
 	assert.equal(updateBody.branch, proposal.branchName);
 	assert.equal(updateBody.message, "Add artist profile: Test Artist");
-	const updatedProfiles = JSON.parse(Buffer.from(updateBody.content, "base64").toString("utf8"));
-	assert.equal(updatedProfiles.filter((profile: ArtistProfile) => profile.id === artist.id).length, 1);
-	assert.equal(JSON.stringify(updatedProfiles).includes("submitterEmail"), false);
+	const updatedProfile = JSON.parse(Buffer.from(updateBody.content, "base64").toString("utf8"));
+	assert.deepEqual(updatedProfile, artist);
+	assert.equal("sha" in updateBody, false);
+	assert.equal(JSON.stringify(updatedProfile).includes("submitterEmail"), false);
 	const pullBody = calls.find(
 		(call) => call.url.endsWith("/pulls") && call.method === "POST",
 	)?.body as { base: string; head: string; title: string };
@@ -135,20 +159,16 @@ test("creates a branch, one directory commit, and a pull request against staging
 test("reuses a committed orphan branch when retrying pull-request creation", async () => {
 	const proposal = makeProposal();
 	let branchCreateCount = 0;
-	const branchProfiles = insertArtist(artists, JSON.parse(JSON.stringify(proposal.artist)));
 	const fetchMock: typeof fetch = async (input, init = {}) => {
 		const url = String(input);
 		const method = init.method ?? "GET";
 		if (url.includes("/access_tokens")) return jsonResponse({ token: "installation-token" });
 		if (url.includes("/pulls?") && method === "GET") return jsonResponse([]);
 		if (url.endsWith("/git/ref/heads/staging")) return jsonResponse({ object: { sha: "base-sha" } });
-		if (url.includes("/contents/src/data/directory.json?ref=base-sha")) {
-			return jsonResponse({ content: Buffer.from(JSON.stringify(artists)).toString("base64"), encoding: "base64", sha: "directory-sha" });
-		}
+		if (url.endsWith("/git/trees/base-sha?recursive=1")) return directoryResponse([]);
 		if (url.includes("/git/ref/heads/artist-submission/")) return jsonResponse({ object: { sha: "branch-sha" } });
-		if (url.includes(`/contents/src/data/directory.json?ref=${encodeURIComponent(proposal.branchName)}`)) {
-			return jsonResponse({ content: Buffer.from(JSON.stringify(branchProfiles)).toString("base64"), encoding: "base64", sha: "branch-directory-sha" });
-		}
+		if (url.endsWith("/git/trees/branch-sha?recursive=1")) return directoryResponse([artist]);
+		if (url.endsWith(`/contents/src/data/artists/${artist.id}.json?ref=branch-sha`)) return profileResponse(artist);
 		if (url.endsWith("/git/refs") && method === "POST") {
 			branchCreateCount += 1;
 			return jsonResponse({}, 201);

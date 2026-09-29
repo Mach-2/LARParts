@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Config } from "@netlify/functions";
 import { ZodError } from "zod";
-import { artists, type ArtistProfile } from "../../src/data/artistProfile";
+import type { ArtistProfile } from "../../src/data/artistProfile";
 import {
 	createPublicArtist,
 	profileSubmissionSchema,
@@ -121,7 +121,7 @@ export function findExistingProfileConflict(
 
 export function prepareSubmission(
 	submission: ProfileSubmission,
-	existingProfiles: ArtistProfile[] = artists,
+	existingProfiles: ArtistProfile[] = [],
 ): PreparedSubmission {
 	if (findExistingProfileConflict(submission, existingProfiles)) {
 		throw new RequestError(
