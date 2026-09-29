@@ -1,8 +1,8 @@
 import { createSign } from "node:crypto";
-import { artistDirectorySchema, type ArtistProfile } from "../../src/data/artistProfile";
+import { artistProfileSchema, parseArtistFiles, type ArtistProfile } from "../../src/data/artistProfile";
 
 const GITHUB_API_URL = "https://api.github.com";
-const DIRECTORY_PATH = "src/data/directory.json";
+const ARTISTS_PATH = "src/data/artists";
 
 export interface GitHubSubmissionConfig {
 	appId: string;
@@ -159,23 +159,37 @@ export class GitHubClient {
 	}
 
 	async getDirectory(branch: string) {
+		const tree = await this.request<{ truncated: boolean; tree: Array<{ path: string; type: string }> }>(
+			this.repositoryPath(`/git/trees/${encodeURIComponent(branch)}?recursive=1`),
+		);
+		if (tree.truncated) throw new GitHubOperationError("Repository tree is incomplete.");
+		if (!tree.tree.some((entry) => entry.path === ARTISTS_PATH && entry.type === "tree")) {
+			throw new GitHubOperationError("Artist directory is missing from the submission base. Migrate the base branch first.");
+		}
+		const files: Record<string, unknown> = {};
+		for (const entry of tree.tree) {
+			if (entry.path.startsWith(`${ARTISTS_PATH}/`) && entry.path.endsWith(".json") && entry.path.slice(ARTISTS_PATH.length + 1).includes("/") === false) {
+				if (entry.type !== "blob") throw new GitHubOperationError("Invalid artist file.");
+				files[entry.path] = await this.getJsonFile(entry.path, branch);
+			}
+		}
+		return { profiles: parseArtistFiles(files) };
+	}
+
+	private async getJsonFile(path: string, branch: string): Promise<unknown> {
 		const result = await this.request<GitHubContent>(
-			this.repositoryPath(`/contents/${DIRECTORY_PATH}?ref=${encodeURIComponent(branch)}`),
+			this.repositoryPath(`/contents/${path}?ref=${encodeURIComponent(branch)}`),
 		);
 		if (result.encoding !== "base64") {
-			throw new GitHubOperationError("Directory file used an unsupported encoding.");
+			throw new GitHubOperationError("Artist file used an unsupported encoding.");
 		}
 		let parsed: unknown;
 		try {
 			parsed = JSON.parse(Buffer.from(result.content, "base64").toString("utf8"));
 		} catch {
-			throw new GitHubOperationError("Directory file is not valid JSON.");
+			throw new GitHubOperationError("Artist file is not valid JSON.");
 		}
-		const validation = artistDirectorySchema.safeParse(parsed);
-		if (!validation.success) {
-			throw new GitHubOperationError("Directory data failed validation.");
-		}
-		return { profiles: validation.data, sha: result.sha };
+		return parsed;
 	}
 
 	async findOpenPullRequest(branchName: string) {
@@ -218,19 +232,17 @@ export class GitHubClient {
 		);
 	}
 
-	async updateDirectory(
+	async createArtist(
 		branchName: string,
-		fileSha: string,
-		profiles: ArtistProfile[],
-		displayName: string,
+		artist: ArtistProfile,
 	) {
-		const content = `${JSON.stringify(profiles, null, 2)}\n`;
-		await this.request(this.repositoryPath(`/contents/${DIRECTORY_PATH}`), {
+		const validated = artistProfileSchema.parse(artist);
+		const content = `${JSON.stringify(validated, null, 2)}\n`;
+		await this.request(this.repositoryPath(`/contents/${ARTISTS_PATH}/${validated.id}.json`), {
 			method: "PUT",
 			body: JSON.stringify({
-				message: `Add artist profile: ${displayName}`,
+				message: `Add artist profile: ${validated.displayName}`,
 				content: Buffer.from(content).toString("base64"),
-				sha: fileSha,
 				branch: branchName,
 			}),
 		});
@@ -247,13 +259,6 @@ export class GitHubClient {
 			}),
 		});
 	}
-}
-
-export function insertArtist(
-	profiles: ArtistProfile[],
-	artist: ArtistProfile,
-) {
-	return [...profiles, artist];
 }
 
 function sortObjectKeys<T>(value: T): T {
@@ -371,7 +376,7 @@ export async function queueGitHubSubmission(
 	}
 
 	const baseSha = await client.getBranchSha(config.baseBranch);
-	const { profiles, sha: directorySha } = await client.getDirectory(baseSha);
+	const { profiles } = await client.getDirectory(baseSha);
 	if (profiles.some((profile) => profile.id === proposal.artist.id)) {
 		throw new SubmissionConflictError("The proposed artist ID already exists.");
 	}
@@ -390,8 +395,8 @@ export async function queueGitHubSubmission(
 	}
 
 	try {
-		await client.getBranchSha(proposal.branchName);
-		const branchDirectory = await client.getDirectory(proposal.branchName);
+		const branchSha = await client.getBranchSha(proposal.branchName);
+		const branchDirectory = await client.getDirectory(branchSha);
 		const branchArtist = branchDirectory.profiles.find(
 			(profile) => profile.id === proposal.artist.id,
 		);
@@ -424,11 +429,9 @@ export async function queueGitHubSubmission(
 	try {
 		await client.createBranch(proposal.branchName, baseSha);
 		branchCreated = true;
-		await client.updateDirectory(
+		await client.createArtist(
 			proposal.branchName,
-			directorySha,
-			insertArtist(profiles, proposal.artist),
-			proposal.artist.displayName,
+			proposal.artist,
 		);
 		commitCreated = true;
 		const pullRequest = await client.createPullRequest(proposal);

@@ -7,6 +7,7 @@ import {
 } from "../netlify/functions/submit-profile.mts";
 import type { AdministratorNotification } from "../netlify/functions/administrator-notification.mts";
 import { profileSubmissionSchema } from "../src/data/profileSubmission";
+import { SubmissionConflictError } from "../netlify/functions/github-submission.mts";
 
 const endpoint = "http://localhost/.netlify/functions/submit-profile";
 
@@ -130,12 +131,14 @@ test("rejects a filled honeypot", async () => {
 	assert.equal((await response.json()).success, false);
 });
 
-test("rejects a profile that conflicts with the public directory", async () => {
+test("returns a conflict when the current GitHub directory already contains the profile", async () => {
 	const payload = validPayload();
 	payload.profile.displayName = "Aera Leyric";
 	payload.profile.kingdom = "Northern Lights";
 
-	const response = await handleProfileSubmission(jsonRequest(payload));
+	const response = await handleProfileSubmission(jsonRequest(payload), async () => {
+		throw new SubmissionConflictError("An artist with that display name already exists in this kingdom.");
+	});
 	assert.equal(response.status, 409);
 	assert.deepEqual(await response.json(), {
 		success: false,
