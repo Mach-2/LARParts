@@ -34,14 +34,17 @@ const artist: ArtistProfile = {
 	skills: ["Sewing", "Leatherwork"],
 	memberSince: "Player Since 2020",
 	biography: "Makes useful things.",
+	photoUrl: "https://example.com/",
 	contact: { website: "https://example.com/" },
 };
 
-const proposal: ProposedSubmission = {
-	artist,
-	branchName: "artist-submission/artist-0123456789abcdef-a1b2c3d4",
-	submissionId: "sub-a1b2c3d4e5f60708",
-};
+function makeProposal(): ProposedSubmission {
+	return {
+		artist: JSON.parse(JSON.stringify(artist)) as ArtistProfile,
+		branchName: "artist-submission/artist-0123456789abcdef-a1b2c3d4",
+		submissionId: "sub-a1b2c3d4e5f60708",
+	};
+}
 
 function jsonResponse(value: unknown, status = 200) {
 	return Response.json(value, { status });
@@ -54,9 +57,11 @@ test("appends new artists to the directory", () => {
 });
 
 test("builds a readable pull request body without private email", () => {
+	const proposal = makeProposal();
 	const body = buildPullRequestBody(proposal);
 	assert.match(body, /## New artist profile submission/);
 	assert.match(body, /### Test Artist/);
+	assert.match(body, /!\[Test Artist\]\(https:\/\/example\.com\/\)/);
 	assert.match(body, /- Sewing/);
 	assert.match(body, /_No awards provided\._/);
 	assert.match(body, /Website: https:\/\/example\.com\//);
@@ -66,6 +71,7 @@ test("builds a readable pull request body without private email", () => {
 });
 
 test("creates a branch, one directory commit, and a pull request against staging", async () => {
+	const proposal = makeProposal();
 	const calls: Array<{ body?: unknown; method: string; url: string }> = [];
 	const fetchMock: typeof fetch = async (input, init = {}) => {
 		const url = String(input);
@@ -127,8 +133,9 @@ test("creates a branch, one directory commit, and a pull request against staging
 });
 
 test("reuses a committed orphan branch when retrying pull-request creation", async () => {
+	const proposal = makeProposal();
 	let branchCreateCount = 0;
-	const branchProfiles = insertArtist(artists, artist);
+	const branchProfiles = insertArtist(artists, JSON.parse(JSON.stringify(proposal.artist)));
 	const fetchMock: typeof fetch = async (input, init = {}) => {
 		const url = String(input);
 		const method = init.method ?? "GET";
@@ -162,6 +169,7 @@ test("reuses a committed orphan branch when retrying pull-request creation", asy
 });
 
 test("reuses an existing open pull request without creating another branch", async () => {
+	const proposal = makeProposal();
 	const mutationMethods: string[] = [];
 	const fetchMock: typeof fetch = async (input, init = {}) => {
 		const url = String(input);

@@ -256,6 +256,24 @@ export function insertArtist(
 	return [...profiles, artist];
 }
 
+function sortObjectKeys<T>(value: T): T {
+	if (Array.isArray(value)) {
+		return value.map((entry) => sortObjectKeys(entry)) as T;
+	}
+	if (value && typeof value === "object") {
+		return Object.fromEntries(
+			Object.entries(value as Record<string, unknown>)
+				.sort(([left], [right]) => left.localeCompare(right))
+				.map(([key, entry]) => [key, sortObjectKeys(entry)]),
+		) as T;
+	}
+	return value;
+}
+
+function stableJsonStringify<T>(value: T) {
+	return JSON.stringify(sortObjectKeys(value));
+}
+
 function markdownValue(value?: string) {
 	return value || "Not provided";
 }
@@ -280,9 +298,15 @@ export function buildPullRequestBody(proposal: ProposedSubmission) {
 		.map(([label, value]) => `- ${label}: ${value}`)
 		.join("\n");
 
+	const profileImage = artist.photoUrl
+		? `![${artist.displayName}](${artist.photoUrl})`
+		: "_No photo provided._";
+
 	return `## New artist profile submission
 
 ### ${artist.displayName}
+
+${profileImage}
 
 **Kingdom:** ${markdownValue(artist.kingdom)}  
 **Home park:** ${markdownValue(artist.homePark)}  
@@ -371,7 +395,10 @@ export async function queueGitHubSubmission(
 		const branchArtist = branchDirectory.profiles.find(
 			(profile) => profile.id === proposal.artist.id,
 		);
-		if (!branchArtist || JSON.stringify(branchArtist) !== JSON.stringify(proposal.artist)) {
+		if (
+			!branchArtist ||
+			stableJsonStringify(branchArtist) !== stableJsonStringify(proposal.artist)
+		) {
 			throw new SubmissionConflictError(
 				"An existing submission branch contains different profile data.",
 			);
