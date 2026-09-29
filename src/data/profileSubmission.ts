@@ -106,7 +106,7 @@ export const publicProfileSubmissionSchema = z
 		biography: z.preprocess(
 			(value) =>
 				typeof value === "string" && value.trim() === "" ? undefined : value,
-			z.string().trim().max(1000).optional(),
+			z.string().trim().max(500).optional(),
 		),
 		contact: z
 			.object({

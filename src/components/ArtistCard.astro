@@ -65,7 +65,14 @@ const normalizedSkills = artist.skills.join(" ").toLowerCase();
 
 			{artist.awards.length > 0 && <p class="artist-awards">Titles: {artist.awards.join(", ")}</p>}
 
-			{artist.skills.length > 0 && <p class="artist-specialties">{artist.skills.join(", ")}</p>}
+			{artist.skills.length > 0 && <p class="artist-specialties">Skills: {artist.skills.join(", ")}</p>}
+
+			{artist.biography && (
+				<details class="artist-biography-toggle">
+					<summary>Biography</summary>
+					<p class="artist-biography">{artist.biography}</p>
+				</details>
+			)}
 		</div>
 
 		{artist.memberSince && <p class="artist-note">{artist.memberSince}</p>}
@@ -138,6 +145,42 @@ const normalizedSkills = artist.skills.join(" ").toLowerCase();
 	.artist-specialties {
 		font-size: 0.95rem;
 		line-height: 1.6;
+	}
+
+	.artist-biography-toggle {
+		margin-top: 0.75rem;
+	}
+
+	.artist-biography-toggle summary {
+		cursor: pointer;
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--color-primary);
+		list-style: none;
+	}
+
+	.artist-biography-toggle summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.artist-biography-toggle summary::after {
+		content: "▸";
+		display: inline-block;
+		margin-left: 0.35rem;
+		transition: transform 0.2s ease;
+	}
+
+	.artist-biography-toggle[open] summary::after {
+		transform: rotate(90deg);
+	}
+
+	.artist-biography {
+		margin: 0.5rem 0 0;
+		font-size: 0.85rem;
+		line-height: 1.5;
+		color: var(--color-text);
 	}
 
 	.artist-note {
