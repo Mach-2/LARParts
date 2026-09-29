@@ -31,7 +31,9 @@ const normalizedAwards = artist.awards.join(" ").toLowerCase();
 const normalizedSkills = artist.skills.join(" ").toLowerCase();
 ---
 
-<article
+<a
+	href={`/artists/${artist.id}/`}
+	aria-label={`View ${artist.displayName}'s profile`}
 	id={artist.id}
 	class="artist-card"
 	data-artist-card
@@ -67,20 +69,17 @@ const normalizedSkills = artist.skills.join(" ").toLowerCase();
 
 			{artist.skills.length > 0 && <p class="artist-specialties">Skills: {artist.skills.join(", ")}</p>}
 
-			{artist.biography && (
-				<details class="artist-biography-toggle">
-					<summary>Biography</summary>
-					<p class="artist-biography">{artist.biography}</p>
-				</details>
-			)}
+			<p class="profile-cue">View profile <span aria-hidden="true">&rarr;</span></p>
 		</div>
 
 		{artist.memberSince && <p class="artist-note">{artist.memberSince}</p>}
 	</div>
-</article>
+</a>
 
 <style>
 	.artist-card {
+		color: inherit;
+		text-decoration: none;
 		display: flex;
 		flex-direction: row;
 		align-items: stretch;
@@ -89,6 +88,23 @@ const normalizedSkills = artist.skills.join(" ").toLowerCase();
 		border-radius: 1rem;
 		overflow: hidden;
 		box-shadow: 0 10px 30px var(--shadow-card);
+	}
+
+	.artist-card:hover {
+		border-color: var(--color-primary);
+		box-shadow: 0 10px 30px var(--shadow-hover);
+	}
+
+	.artist-card:focus-visible {
+		outline: 3px solid var(--color-primary);
+		outline-offset: 4px;
+	}
+
+	.profile-cue {
+		color: var(--color-primary);
+		font-weight: 700;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
 	}
 
 	.artist-photo {
@@ -147,41 +163,6 @@ const normalizedSkills = artist.skills.join(" ").toLowerCase();
 		line-height: 1.6;
 	}
 
-	.artist-biography-toggle {
-		margin-top: 0.75rem;
-	}
-
-	.artist-biography-toggle summary {
-		cursor: pointer;
-		font-size: 0.78rem;
-		font-weight: 700;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-		color: var(--color-primary);
-		list-style: none;
-	}
-
-	.artist-biography-toggle summary::-webkit-details-marker {
-		display: none;
-	}
-
-	.artist-biography-toggle summary::after {
-		content: "▸";
-		display: inline-block;
-		margin-left: 0.35rem;
-		transition: transform 0.2s ease;
-	}
-
-	.artist-biography-toggle[open] summary::after {
-		transform: rotate(90deg);
-	}
-
-	.artist-biography {
-		margin: 0.5rem 0 0;
-		font-size: 0.85rem;
-		line-height: 1.5;
-		color: var(--color-text);
-	}
 
 	.artist-note {
 		margin: 0.75rem 0 0;

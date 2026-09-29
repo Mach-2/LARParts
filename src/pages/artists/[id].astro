@@ -1,0 +1,126 @@
+---
+import type { GetStaticPaths } from "astro";
+import type { ArtistProfile } from "../../data/artistProfile";
+import { artists } from "../../data/artistDirectory";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import ContactBar from "../../components/ContactBar.astro";
+import "../../styles/theme.css";
+
+export const getStaticPaths = (() => artists.map((artist) => ({
+	params: { id: artist.id },
+	props: { artist },
+}))) satisfies GetStaticPaths;
+
+interface Props { artist: ArtistProfile }
+const { artist }: Props = Astro.props;
+const initials = artist.displayName.trim().split(/\s+/).map((name) => name.charAt(0)).slice(0, 2).join("");
+const kingdomHref = artist.kingdom
+	? `/kingdoms/${artist.kingdom.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}/`
+	: undefined;
+const contactLabels = {
+	website: "Website", instagram: "Instagram", facebook: "Facebook",
+	discord: "Discord", tiktok: "TikTok", other: "Other public link",
+} as const;
+// Public contact values may be usernames, not URLs. Only web URLs become links.
+const contacts = Object.entries(contactLabels).flatMap(([key, label]) => {
+	const value = artist.contact[key as keyof typeof contactLabels]?.trim();
+	if (!value) return [];
+	let href: string | undefined;
+	try {
+		const url = new URL(value);
+		if (url.protocol === "https:" || url.protocol === "http:") href = url.href;
+	} catch { /* Keep usernames and other non-URL values as text. */ }
+	return [{ label, value, href }];
+});
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/design-nib-solid.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{artist.displayName} | LARParts Directory</title>
+		<meta name="description" content={artist.biography?.trim().slice(0, 160) || `Explore ${artist.displayName}'s artist profile on LARParts.`} />
+	</head>
+	<body>
+		<SiteHeader current="directory" />
+		<main class="page">
+			<Breadcrumbs items={[
+				{ label: "Directory", href: "/" },
+				{ label: "All Artists", href: "/artists" },
+				{ label: artist.displayName },
+			]} />
+			<article class="profile">
+				<header class="profile-header">
+					{artist.photoUrl ? (
+						<img class="artist-photo" src={artist.photoUrl} alt={artist.displayName} />
+					) : (
+						<div class="artist-photo placeholder" aria-hidden="true">{initials}</div>
+					)}
+					<div class="profile-summary">
+						<h1>{artist.displayName}</h1>
+						{artist.homePark && <p><strong>Home park:</strong> {artist.homePark}</p>}
+						{artist.kingdom && <p><strong>Kingdom:</strong> <a href={kingdomHref}>{artist.kingdom}</a></p>}
+						{artist.awards.length > 0 && <p><strong>Titles:</strong> {artist.awards.join(", ")}</p>}
+						{artist.skills.length > 0 && <p><strong>Skills:</strong> {artist.skills.join(", ")}</p>}
+						{artist.memberSince && <p class="artist-note">{artist.memberSince}</p>}
+					</div>
+				</header>
+				{artist.biography?.trim() && (
+					<section aria-labelledby="biography-heading">
+						<h2 id="biography-heading">Biography</h2>
+						<p class="biography">{artist.biography}</p>
+					</section>
+				)}
+				{contacts.length > 0 && (
+					<section aria-labelledby="contact-heading">
+						<h2 id="contact-heading">Contact &amp; links</h2>
+						<dl class="contacts">
+							{contacts.map(({ label, value, href }) => (
+								<div><dt>{label}</dt><dd>{href ? <a href={href} rel="me">{value}</a> : value}</dd></div>
+							))}
+						</dl>
+					</section>
+				)}
+			</article>
+			<p class="back-link"><a href="/artists">&larr; All artists</a></p>
+		</main>
+		<ContactBar />
+	</body>
+</html>
+
+<style>
+	:global(body) {
+		margin: 0;
+		font-family: var(--font-body);
+		background: radial-gradient(circle at top left, var(--color-page-glow), transparent 36%),
+			linear-gradient(180deg, var(--color-page-top) 0%, var(--color-page-bottom) 100%);
+		color: var(--color-text);
+	}
+	.page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+	.profile { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 1rem; padding: clamp(1rem, 3vw, 2rem); box-shadow: 0 10px 30px var(--shadow-card); overflow-wrap: anywhere; }
+	.profile-header { display: flex; align-items: flex-start; gap: 2rem; }
+	.artist-photo { width: 240px; max-width: 100%; height: auto; border-radius: 0.75rem; background: var(--color-mark-bg); }
+	.placeholder { flex: 0 0 240px; height: 240px; display: grid; place-items: center; color: var(--color-primary); font-size: 3rem; font-weight: 700; }
+	.profile-summary { min-width: 0; flex: 1; }
+	h1 { margin: 0 0 1rem; font-size: clamp(2rem, 4vw, 3.5rem); }
+	h2 { margin: 0 0 1rem; color: var(--color-primary); }
+	p, dd { line-height: 1.7; }
+	.artist-note { color: var(--color-accent-dark); }
+	section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
+	.biography { white-space: pre-wrap; margin: 0; }
+	a { color: var(--color-primary); text-underline-offset: 0.2em; }
+	a:hover { color: var(--color-accent-dark); }
+	a:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; }
+	.contacts { margin: 0; display: grid; gap: 1rem; }
+	dt { font-weight: 700; }
+	dd { margin: 0.25rem 0 0; }
+	.back-link { margin-top: 1.5rem; }
+	@media (max-width: 640px) {
+		.profile-header { flex-direction: column; gap: 1.25rem; }
+		.artist-photo { align-self: center; }
+		.placeholder { flex-basis: auto; }
+	}
+</style>
