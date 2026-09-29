@@ -22,6 +22,10 @@ const contactLabels = {
 	website: "Website", instagram: "Instagram", facebook: "Facebook",
 	discord: "Discord", tiktok: "TikTok", other: "Other public link",
 } as const;
+const contactIcons: Record<keyof typeof contactLabels, string> = {
+	website: "/internet.svg", instagram: "/instagram.svg", facebook: "/facebook.svg",
+	discord: "/discord.svg", tiktok: "/tiktok.svg", other: "/link.svg",
+};
 // Public contact values may be usernames, not URLs. Only web URLs become links.
 const contacts = Object.entries(contactLabels).flatMap(([key, label]) => {
 	const value = artist.contact[key as keyof typeof contactLabels]?.trim();
@@ -31,7 +35,7 @@ const contacts = Object.entries(contactLabels).flatMap(([key, label]) => {
 		const url = new URL(value);
 		if (url.protocol === "https:" || url.protocol === "http:") href = url.href;
 	} catch { /* Keep usernames and other non-URL values as text. */ }
-	return [{ label, value, href }];
+	return [{ label, value, href, icon: contactIcons[key as keyof typeof contactLabels] }];
 });
 ---
 
@@ -78,8 +82,21 @@ const contacts = Object.entries(contactLabels).flatMap(([key, label]) => {
 					<section aria-labelledby="contact-heading">
 						<h2 id="contact-heading">Contact &amp; links</h2>
 						<dl class="contacts">
-							{contacts.map(({ label, value, href }) => (
-								<div><dt>{label}</dt><dd>{href ? <a href={href} rel="me">{value}</a> : value}</dd></div>
+							{contacts.map(({ label, value, href, icon }) => (
+								<div>
+									<dt>{label}</dt>
+									<dd>{href ? (
+										<a class="contact-value" href={href} rel="me">
+											<img class="contact-icon" src={icon} alt="" width="24" height="24" />
+											<span>{value}</span>
+										</a>
+									) : (
+										<span class="contact-value">
+											<img class="contact-icon" src={icon} alt="" width="24" height="24" />
+											<span>{value}</span>
+										</span>
+									)}</dd>
+								</div>
 							))}
 						</dl>
 					</section>
@@ -115,6 +132,9 @@ const contacts = Object.entries(contactLabels).flatMap(([key, label]) => {
 	a:hover { color: var(--color-accent-dark); }
 	a:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; }
 	.contacts { margin: 0; display: grid; gap: 1rem; }
+	.contact-value { display: inline-flex; align-items: flex-start; gap: 0.6rem; max-width: 100%; }
+	.contact-value > span { min-width: 0; }
+	.contact-icon { flex: 0 0 24px; width: 24px; height: 24px; object-fit: contain; margin-top: 0.1rem; }
 	dt { font-weight: 700; }
 	dd { margin: 0.25rem 0 0; }
 	.back-link { margin-top: 1.5rem; }
