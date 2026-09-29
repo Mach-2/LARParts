@@ -19,7 +19,7 @@ async function checkGitHubApp() {
 	const client = new GitHubClient(config);
 	const baseSha = await client.getBranchSha(config.baseBranch);
 
-	console.log("5. Reading and validating directory.json from the base commit...");
+	console.log("5. Reading and validating individual artist files from the base commit...");
 	const directory = await client.getDirectory(baseSha);
 
 	console.log("6. Checking pull-request read permission...");
