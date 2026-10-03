@@ -5,11 +5,13 @@
   "homePark": "Lost Cove",
   "awards": [],
   "skills": [
-    "Advanced: Special effects",
+    "Special effects",
     "leather",
     "painting",
     "drawing",
-    "sculpting Intermediate: sewing and various fiber arts"
+    "sculpting",
+    "sewing",
+    "Fiber arts"
   ],
   "memberSince": "Player Since 2023",
   "biography": "I’m a multi-purpose crafter! Professional special effects makeup artist, and avid hobby crafter",
@@ -17,5 +19,5 @@
     "instagram": "https://www.instagram.com/ayla_makes_things?stkn=MTlyMGZwNXVqYjEycg%3D%3D&utm_source=qr",
     "discord": "https://discord.gg/47qsCGa5"
   },
-  "photoUrl": "https://kommodo.ai/i/7CgCTWi4xYrQh1EujO06"
+  "photoUrl": "/photos/Fen.jpg"
 }
