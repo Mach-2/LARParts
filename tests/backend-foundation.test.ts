@@ -3,6 +3,7 @@ import test from 'node:test';
 import { loadBackendConfig } from '../src/server/config';
 import { adaptArtistRow, readPublishedArtists } from '../src/server/artists';
 import { resolveAssetUrl, safeObjectKey, createStorageClient } from '../src/server/storage';
+import {imageEndpoint} from '../src/server/image-handler';
 
 const env = {
   APP_ENV:'testing', SUPABASE_URL:'https://testref.supabase.co',SUPABASE_PUBLISHABLE_KEY:'public-test-key',SUPABASE_SECRET_KEY:'private-test-key',
@@ -14,6 +15,31 @@ const env = {
   BACKEND_PRODUCTION_TEMPORARY_BUCKET:'prod-temporary',BACKEND_PRODUCTION_PUBLISHED_BUCKET:'prod-published',
 };
 const config = loadBackendConfig(env);
+
+test('image initialization diagnostics identify configuration failures without leaking values',async()=>{
+  const base={...env,CONTEXT:'branch-deploy',IMAGE_INGESTION_ENABLED:'true',SITE_URL:'https://testing.example.invalid',TURNSTILE_SECRET_KEY:'synthetic-turnstile-secret'};
+  const saved=Object.fromEntries(Object.keys(base).map(key=>[key,process.env[key]]));
+  const original=console.error,logs:unknown[][]=[];console.error=(...args:unknown[])=>{logs.push(args);};
+  try{
+    for(const scenario of [
+      {change:{R2_ACCOUNT_ID:'credential-value-not-an-account-id'},stage:'backend_configuration',code:'invalid_backend_fields',fields:['R2_ACCOUNT_ID']},
+      {change:{R2_PUBLISHED_SECRET_ACCESS_KEY:env.R2_TEMPORARY_SECRET_ACCESS_KEY},stage:'backend_configuration',code:'r2_credentials_not_distinct',fields:[]},
+      {change:{SITE_URL:'invalid-private-url-value'},stage:'site_url',code:'initialization_failed'},
+      {change:{TURNSTILE_SECRET_KEY:''},stage:'turnstile_configuration',code:'initialization_failed'},
+    ]){
+      Object.assign(process.env,base,scenario.change);logs.length=0;
+      const response=await imageEndpoint(new Request('https://testing.example.invalid/api/profile-image',{method:'POST'}),'synthetic-ip');
+      assert.equal(response.status,503);assert.deepEqual(await response.json(),{error:'Image service unavailable'});
+      assert.equal(logs.length,1);
+      assert.deepEqual(logs[0],[ 'Image service initialization failed',{stage:scenario.stage,code:scenario.code,...(scenario.fields?{fields:scenario.fields}:{})}]);
+      const serialized=JSON.stringify(logs);
+      for(const privateValue of ['credential-value-not-an-account-id','invalid-private-url-value',env.SUPABASE_SECRET_KEY,env.R2_TEMPORARY_SECRET_ACCESS_KEY,base.TURNSTILE_SECRET_KEY])assert.ok(!serialized.includes(privateValue));
+    }
+  }finally{
+    console.error=original;
+    for(const [key,value]of Object.entries(saved)){if(value===undefined)delete process.env[key];else process.env[key]=value;}
+  }
+});
 const profile = {displayName:'Synthetic Artist',kingdom:'Testing',awards:[],skills:['Sewing'],contact:{}};
 
 test('configuration fails closed for swapped resources, preview production, shared credentials and malformed inputs', () => {

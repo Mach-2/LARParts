@@ -35,6 +35,11 @@ const schema = z.object({
 });
 export type BackendConfig = z.infer<typeof schema>;
 
+// Only codes and schema field names may be logged, never raw parser errors.
+export class BackendConfigurationError extends Error {
+  constructor(message:string,public readonly code:string,public readonly fields:string[]=[]){super(message);}
+}
+
 const readSchema=schema.pick({APP_ENV:true,CONTEXT:true,SUPABASE_URL:true,SUPABASE_PUBLISHABLE_KEY:true,R2_PUBLIC_BASE_URL:true,BACKEND_TESTING_SUPABASE_REF:true,BACKEND_PRODUCTION_SUPABASE_REF:true});
 export type PublicReadConfig=z.infer<typeof readSchema>;
 export const PUBLIC_READ_ENV_NAMES=['APP_ENV','CONTEXT','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','R2_PUBLIC_BASE_URL','BACKEND_TESTING_SUPABASE_REF','BACKEND_PRODUCTION_SUPABASE_REF'] as const;
@@ -54,17 +59,20 @@ export function loadPublicReadConfig(env:NodeJS.ProcessEnv=process.env):PublicRe
 export function loadBackendConfig(env: NodeJS.ProcessEnv = process.env): BackendConfig {
   const parsed = schema.safeParse(env);
   // Do not expose values through Zod errors or logs.
-  if (!parsed.success) throw new Error(`Invalid backend configuration: ${[...new Set(parsed.error.issues.map(i => i.path[0]))].join(', ')}`);
+  if (!parsed.success) {
+    const fields=[...new Set(parsed.error.issues.map(i=>String(i.path[0])))];
+    throw new BackendConfigurationError(`Invalid backend configuration: ${fields.join(', ')}`,'invalid_backend_fields',fields);
+  }
   const c = parsed.data;
   if ((c.CONTEXT && c.CONTEXT !== 'production' && c.APP_ENV !== 'testing') ||
-      (c.CONTEXT === 'production' && c.APP_ENV !== 'production')) throw new Error('Deployment environment mismatch');
-  if (c.BACKEND_TESTING_SUPABASE_REF === c.BACKEND_PRODUCTION_SUPABASE_REF) throw new Error('Supabase projects must differ');
+      (c.CONTEXT === 'production' && c.APP_ENV !== 'production')) throw new BackendConfigurationError('Deployment environment mismatch','deployment_environment_mismatch');
+  if (c.BACKEND_TESTING_SUPABASE_REF === c.BACKEND_PRODUCTION_SUPABASE_REF) throw new BackendConfigurationError('Supabase projects must differ','supabase_projects_not_distinct');
   const buckets = [c.BACKEND_TESTING_TEMPORARY_BUCKET,c.BACKEND_TESTING_PUBLISHED_BUCKET,c.BACKEND_PRODUCTION_TEMPORARY_BUCKET,c.BACKEND_PRODUCTION_PUBLISHED_BUCKET];
-  if (new Set(buckets).size !== 4) throw new Error('All environment buckets must differ');
+  if (new Set(buckets).size !== 4) throw new BackendConfigurationError('All environment buckets must differ','buckets_not_distinct');
   const prefix = c.APP_ENV === 'testing' ? 'BACKEND_TESTING' : 'BACKEND_PRODUCTION';
   if (new URL(c.SUPABASE_URL).hostname !== `${c[`${prefix}_SUPABASE_REF`]}.supabase.co` ||
-      c.R2_TEMPORARY_BUCKET !== c[`${prefix}_TEMPORARY_BUCKET`] || c.R2_PUBLISHED_BUCKET !== c[`${prefix}_PUBLISHED_BUCKET`]) throw new Error('Backend resource pin mismatch');
-  if (c.R2_TEMPORARY_ACCESS_KEY_ID === c.R2_PUBLISHED_ACCESS_KEY_ID || c.R2_TEMPORARY_SECRET_ACCESS_KEY === c.R2_PUBLISHED_SECRET_ACCESS_KEY) throw new Error('R2 credentials must be separately scoped');
-  if (c.APP_ENV === 'production' && /(^|\.)r2\.dev$/.test(new URL(c.R2_PUBLIC_BASE_URL).hostname)) throw new Error('Production images require a custom domain');
+      c.R2_TEMPORARY_BUCKET !== c[`${prefix}_TEMPORARY_BUCKET`] || c.R2_PUBLISHED_BUCKET !== c[`${prefix}_PUBLISHED_BUCKET`]) throw new BackendConfigurationError('Backend resource pin mismatch','backend_resource_pin_mismatch');
+  if (c.R2_TEMPORARY_ACCESS_KEY_ID === c.R2_PUBLISHED_ACCESS_KEY_ID || c.R2_TEMPORARY_SECRET_ACCESS_KEY === c.R2_PUBLISHED_SECRET_ACCESS_KEY) throw new BackendConfigurationError('R2 credentials must be separately scoped','r2_credentials_not_distinct');
+  if (c.APP_ENV === 'production' && /(^|\.)r2\.dev$/.test(new URL(c.R2_PUBLIC_BASE_URL).hostname)) throw new BackendConfigurationError('Production images require a custom domain','production_image_domain_required');
   return c;
 }

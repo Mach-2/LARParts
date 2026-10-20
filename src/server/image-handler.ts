@@ -1,6 +1,6 @@
 import { createHmac } from 'node:crypto';
 import { z } from 'zod';
-import { loadBackendConfig,type BackendConfig } from './config';
+import { loadBackendConfig,BackendConfigurationError,type BackendConfig } from './config';
 import { createImageRpc,ImageService,type ImageRpc } from './image-service';
 import { MAX_IMAGE_BYTES,IMAGE_TYPES } from './image-processing';
 import {verifyTurnstile} from './turnstile';
@@ -41,16 +41,28 @@ export async function handleImageRequest(request:Request,ip:string,deps:ImageHan
 export async function imageEndpoint(request:Request,ip:string) {
   if(process.env.IMAGE_INGESTION_ENABLED!=='true')return json({error:'Image ingestion unavailable'},503);
   let service:ImageService|undefined;
+  let stage='backend_configuration';
   try {
     const config=loadBackendConfig();
     // Step 3 is testing-only until deployment scoping and cutover are accepted.
     if(config.APP_ENV!=='testing')return json({error:'Image ingestion unavailable'},503);
+    stage='site_url';
     const site=new URL(process.env.SITE_URL??'');
     if(site.pathname!=='/' || site.username || site.password || site.search || site.hash ||
       (site.protocol!=='https:' && !(site.protocol==='http:' && ['localhost','127.0.0.1'].includes(site.hostname)))) throw new Error('Invalid site origin');
+    stage='turnstile_configuration';
     if(!process.env.TURNSTILE_SECRET_KEY)throw new Error('Bot configuration missing');
+    stage='storage_initialization';
     const rpc=createImageRpc(config); service=new ImageService(config,rpc);
+    stage='request_dispatch';
     return await handleImageRequest(request,ip,{config,rpc,service,siteOrigin:site.origin,verifyBot:(token,address)=>
       verifyTurnstile({secret:process.env.TURNSTILE_SECRET_KEY!,token,ip:address,origin:site.origin,action:'profile-image'})});
-  } catch {return json({error:'Image service unavailable'},503);} finally {service?.close();}
+  } catch(error){
+    // Keep credential values, request bodies, URLs, provider errors and stacks out
+    // of logs. The browser continues to receive only the generic service error.
+    console.error('Image service initialization failed',{
+      stage,...(error instanceof BackendConfigurationError?{code:error.code,fields:error.fields}:{code:'initialization_failed'}),
+    });
+    return json({error:'Image service unavailable'},503);
+  } finally {service?.close();}
 }

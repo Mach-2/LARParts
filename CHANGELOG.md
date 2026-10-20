@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added: Safe server-only image-service initialization diagnostics that identify configuration stages and invalid variable names without logging credential values.
+
 - Fixed: Ignore stale photo preparation/preview results after changing or removing a photo, and stop submission if the selection changes during its final preview refresh.
 
 - Changed: Use the email-confirmed submission flow at `/submit-profile` on the release branch, retire its GitHub-writing endpoint, and align public privacy guidance with v1.0.1. Missing submission configuration returns 503 instead of hiding the route with 404.
