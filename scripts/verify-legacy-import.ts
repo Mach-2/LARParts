@@ -5,7 +5,7 @@ import {createLegacyImportStore} from '../src/server/legacy-import-store';
 import {loadLegacyProfiles,checksum,byteChecksum,publicLegacyProfile,prepareLegacyPhoto,legacyPhotoBytes,type ImportAsset} from '../src/server/legacy-import';
 import {readPublishedArtists,readPublishedArtist} from '../src/server/artists';
 
-const {sql,config}=await legacyImportContext(),store=createLegacyImportStore(sql,config);
+const {sql,config}=await legacyImportContext(true),store=createLegacyImportStore(sql,config);
 const allowCorrections=process.argv.includes('--allow-audited-corrections');
 const args=process.argv.slice(2).filter(arg=>arg!=='--allow-audited-corrections');let origin:string|undefined;
 if(args.length){

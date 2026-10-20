@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Changed: Support validated production submission/image endpoints and publication recovery, with separately pinned production import connections and testing mail isolation.
+
 - Fixed: Move legacy GitHub/email helper modules outside Netlify function discovery.
 - Added: Post-bundling inspection of final Netlify function ZIPs, with private-data/tooling checks, Linux native dependency checks and per-package hashes.
 

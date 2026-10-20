@@ -13,7 +13,7 @@ try{
     if(['--history','--source-label','--abandon'].includes(name)){if(!args[i+1]||args[i+1].startsWith('--'))throw new Error('Missing import argument');i++;}
   }
   const apply=args.includes('--apply'),sourceLabel=sourceLabelSchema.parse(option('--source-label')??'release-v1.0.1');
-  const {sql,config}=await legacyImportContext();finish=()=>sql.end({timeout:5});
+  const {sql,config}=await legacyImportContext(true);finish=()=>sql.end({timeout:5});
   // Only import/abandon runners contend on this lock; public reads/admin edits continue.
   const [lock]=await sql`select pg_try_advisory_lock(101001006) as acquired`;
   if(!lock.acquired)throw new Error('Another import runner is active');
@@ -33,7 +33,7 @@ try{
     // Counts only, never paths, emails, consent values, or private record identifiers.
     console.log(JSON.stringify({mode:apply?'apply':'dry-run',records:plan.records.length,issues:plan.issues}));
     if(!plan.valid)throw new Error('Private source has unresolved issues');
-    if(apply&&plan.records.some(r=>!r.email.endsWith('@example.invalid')))throw new Error('Testing history imports must use synthetic example.invalid addresses');
+    if(apply&&config.APP_ENV==='testing'&&plan.records.some(r=>!r.email.endsWith('@example.invalid')))throw new Error('Testing history imports must use synthetic example.invalid addresses');
     stage='private history import';console.log(JSON.stringify(await importHistoricalRecords(sql,plan.records,sourceLabel,apply)));
   }else{
     stage='public source validation';const artists=await loadLegacyProfiles('src/data/artists');

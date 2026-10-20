@@ -44,12 +44,10 @@ export async function imageEndpoint(request:Request,ip:string) {
   let stage='backend_configuration';
   try {
     const config=loadBackendConfig();
-    // Step 3 is testing-only until deployment scoping and cutover are accepted.
-    if(config.APP_ENV!=='testing')return json({error:'Image ingestion unavailable'},503);
     stage='site_url';
     const site=new URL(process.env.SITE_URL??'');
     if(site.pathname!=='/' || site.username || site.password || site.search || site.hash ||
-      (site.protocol!=='https:' && !(site.protocol==='http:' && ['localhost','127.0.0.1'].includes(site.hostname)))) throw new Error('Invalid site origin');
+      (site.protocol!=='https:' && !(config.APP_ENV==='testing' && site.protocol==='http:' && ['localhost','127.0.0.1'].includes(site.hostname)))) throw new Error('Invalid site origin');
     stage='turnstile_configuration';
     if(!process.env.TURNSTILE_SECRET_KEY)throw new Error('Bot configuration missing');
     stage='storage_initialization';

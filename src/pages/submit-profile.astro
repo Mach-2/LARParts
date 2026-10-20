@@ -9,8 +9,8 @@ export const prerender=false;
 let enabled=false;
 const siteKey=getSecret('TURNSTILE_SITE_KEY')??'';
 try{
-  enabled=loadPublicReadConfig(publicPageEnvironment()).APP_ENV==='testing'&&
-    getSecret('VERIFIED_SUBMISSIONS_ENABLED')==='true'&&getSecret('IMAGE_INGESTION_ENABLED')==='true'&&!!siteKey;
+  loadPublicReadConfig(publicPageEnvironment());
+  enabled=getSecret('VERIFIED_SUBMISSIONS_ENABLED')==='true'&&getSecret('IMAGE_INGESTION_ENABLED')==='true'&&!!siteKey;
 }catch{}
 publicPageResponse(Astro.response,enabled?200:503);
 Astro.response.headers.set('X-Robots-Tag','noindex, nofollow');

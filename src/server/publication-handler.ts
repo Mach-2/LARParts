@@ -70,7 +70,7 @@ export async function publicationEndpoint(request:Request,ip:string){
   if(process.env.VERIFIED_SUBMISSIONS_ENABLED!=='true')return json({error:'Verified submissions unavailable'},503);
   let service:PublicationService|undefined;
   try{
-    const config=loadPublicationConfig();if(config.backend.APP_ENV!=='testing')return json({error:'Verified submissions unavailable'},503);
+    const config=loadPublicationConfig();
     if(new URL(request.url).pathname==='/confirm-profile')return confirmationPage(request.method);
     if(!process.env.TURNSTILE_SECRET_KEY)throw new Error();
     service=new PublicationService(config);
