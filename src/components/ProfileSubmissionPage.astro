@@ -134,7 +134,7 @@ const {siteKey=""}=Astro.props;
 							<label for="photo-upload">Choose a JPEG, PNG or WebP up to 5 MB</label>
 							<input id="photo-upload" name="photoUpload" type="file" accept="image/jpeg,image/png,image/webp" data-photo-upload disabled />
 							</div>
-							<button type="button" data-prepare-photo hidden>Prepare photo preview</button>
+							<button class="secondary-button" type="button" data-prepare-photo hidden>Prepare photo preview</button>
 							<p data-photo-status role="status" aria-live="polite">A photo is optional.</p>
 							<img data-photo-preview hidden alt="Processed private profile photo preview" referrerpolicy="no-referrer" style="max-width:100%;max-height:320px;object-fit:contain" />
 						</div>}
@@ -225,10 +225,10 @@ const {siteKey=""}=Astro.props;
 				{<>
 					<div data-bot-challenge></div>
 					<div data-confirmation-actions hidden>
-						<button type="button" data-resend-confirmation>Resend confirmation</button>
-						<button type="button" data-check-publication>Check publication status</button>
+						<button class="secondary-button" type="button" data-resend-confirmation>Resend confirmation</button>
+						<button class="secondary-button" type="button" data-check-publication>Check publication status</button>
 						<a data-published-link hidden>View your published profile</a>
-						<p>Keep this page open for retry and resend controls. These controls do not grant future editing rights.</p>
+						<p>Please keep this page open to resend the confirmation email if needed or check whether your profile has been published.</p>
 					</div>
 					<noscript>JavaScript is required to prepare photos and request email confirmation.</noscript>
 				</>}
@@ -505,7 +505,8 @@ const {siteKey=""}=Astro.props;
 		flex-wrap: wrap;
 	}
 
-	.submit-button {
+	.submit-button,
+	.secondary-button {
 		min-height: 3rem;
 		padding: 0.75rem 1.2rem;
 		font: inherit;
@@ -517,6 +518,37 @@ const {siteKey=""}=Astro.props;
 		cursor: pointer;
 	}
 
+	.secondary-button {
+		width: fit-content;
+		max-width: 100%;
+		color: var(--color-primary);
+		background: var(--color-card);
+	}
+
+	.secondary-button:hover:not(:disabled) {
+		background: var(--color-mark-bg);
+		border-color: var(--color-accent-dark);
+	}
+
+	.secondary-button:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	[data-confirmation-actions] {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	[data-confirmation-actions] p {
+		flex-basis: 100%;
+		margin: 0;
+		color: var(--color-muted);
+		line-height: 1.5;
+	}
+
 	.submit-button:hover,
 	.submit-button:focus-visible {
 		background: var(--color-accent-dark);
@@ -524,7 +556,8 @@ const {siteKey=""}=Astro.props;
 		outline-offset: 3px;
 	}
 
-	.submit-button:disabled {
+	.submit-button:disabled,
+	.secondary-button:disabled {
 		opacity: 0.7;
 		cursor: wait;
 	}

@@ -33,7 +33,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
   }
   mode.addEventListener('change',photoChanged);file.addEventListener('change',photoChanged);url.addEventListener('input',photoChanged);
   prepare.addEventListener('click',async()=>{
-    if(busy||pending)return;setBusy(true);photoStatus.textContent='Preparing your private photo…';
+    if(busy||pending)return;setBusy(true);photoStatus.textContent='preparing your photo preview…';
     const revision=photoRevision;
     try{
       let prepared:PreparedImage|null;
@@ -47,7 +47,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
       if(revision!==photoRevision)return;
       image=prepared;
       if(!image)throw new Error('Choose a photo first.');
-      preview.src=image.previewUrl;preview.hidden=false;prepare.textContent='Refresh private preview';
+      preview.src=image.previewUrl;preview.hidden=false;prepare.textContent='refresh preview';
       photoStatus.textContent='';
     }catch(error){if(revision===photoRevision)photoStatus.textContent=error instanceof Error?error.message:'Photo preparation failed. Please try again.';}
     finally{setBusy(false);}
