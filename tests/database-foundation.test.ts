@@ -13,6 +13,7 @@ test('migration enforces actual PostgreSQL RLS, grants, identity constraints and
     await db.exec(await readFile(new URL('../supabase/migrations/202610180004_publication_mail_aliases.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../supabase/migrations/202610180005_publication_cleanup_aliases.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../supabase/migrations/202610180006_legacy_import.sql',import.meta.url),'utf8'));
+    await db.exec(await readFile(new URL('../supabase/migrations/202610190007_notification_preference.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../supabase/tests/foundation.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../supabase/tests/image-ingestion.sql',import.meta.url),'utf8'));
     await db.exec(await readFile(new URL('../supabase/tests/verified-publication.sql',import.meta.url),'utf8'));

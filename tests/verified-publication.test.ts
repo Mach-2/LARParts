@@ -92,6 +92,30 @@ test('mail retries retain idempotency keys, enforce allowlist at delivery and st
     assert.ok(!submissionSchema.safeParse({...fixture(),profile:{...fixture().profile,photoUrl:'https://example.com/unprocessed.jpg'}}).success);
   }finally{service.close();await db.close();}
 });
+test('saved opt-in preference reaches administrator mail and stays out of public profiles',async()=>{
+  const {db,rpc}=await database();const sent:Array<{subject:string;text:string}>=[];
+  const service=new PublicationService(config,rpc,async body=>{sent.push(body);});
+  try{
+    for(const optedIn of [true,false]){
+      const input={...fixture(`Preference ${optedIn}`),upgradeNotifications:optedIn};
+      await service.submit(input);
+      const saved=(await db.query<{upgrade_notifications:boolean}>('select upgrade_notifications from private.submissions where id=$1',[input.requestId])).rows[0];
+      assert.equal(saved.upgrade_notifications,optedIn);
+      const tokenId=(await db.query<{id:string}>('select id from private.verification_tokens where submission_id=$1',[input.requestId])).rows[0].id;
+      await service.confirm(input.requestId,verificationToken(config.tokenSecret,tokenId));
+      const jobs=await db.query<{payload:{upgradeNotifications:boolean}}>("select payload from private.notification_jobs where submission_id=$1 and kind='administrator'",[input.requestId]);
+      assert.equal(jobs.rows[0].payload.upgradeNotifications,optedIn);
+      await service.deliver(input.requestId);
+      const mail=sent.find(m=>m.subject===`LARParts profile published: ${input.profile.displayName}`);
+      assert.ok(mail);assert.ok(mail.text.includes(`email notifications opted in: ${optedIn?'Yes':'No'}`));
+    }
+    const publicRows=JSON.stringify((await db.query('select * from public.artist_profiles')).rows);
+    assert.ok(!publicRows.includes('upgradeNotifications'));assert.ok(!publicRows.includes('upgrade_notifications'));
+    const legacy:PublicationJob={id:randomUUID(),submission_id:randomUUID(),kind:'administrator',token_id:null,lease_id:randomUUID(),deduplication_key:'legacy',payload:{origin:config.origin,from:config.from,to:config.administrators,displayName:'Legacy',artistId:'legacy'}};
+    assert.match(buildPublicationMail(config,legacy).text,/Not recorded in this notification/);
+  }finally{service.close();await db.close();}
+});
+
 test('confirmation HTML only POSTs from a submit event, removes fragment, has CSP and GET makes no API calls',async()=>{
   const page=confirmationPage();const html=await page.text();assert.match(html,/addEventListener\('submit'/);assert.match(html,/history.replaceState/);assert.match(page.headers.get('content-security-policy')??'',/frame-ancestors 'none'/);assert.equal(page.headers.get('referrer-policy'),'no-referrer');assert.equal(confirmationPage('HEAD').status,200);
   let calls=0;const deps={config,rpc:async()=>{calls++;return{allowed:true};},service:{},verifyBot:async()=>false} as unknown as PublicationDependencies;

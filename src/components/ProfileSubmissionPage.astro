@@ -26,7 +26,7 @@ const {siteKey=""}=Astro.props;
 				<p class="eyebrow">Join the Directory</p>
 				<h1>Submit your profile</h1>
 				<p class="intro">
-					{'Tell us about your art. Your profile will publish after you explicitly confirm it by email.'}
+					{'Tell us about your art and how people can find your work.'}
 				</p>
 			</section>
 
@@ -117,17 +117,16 @@ const {siteKey=""}=Astro.props;
 
 						{<div class="form-field field-wide">
 							<label for="photo-mode">Profile photo <span class="optional">(optional)</span></label>
-							<select id="photo-mode" name="photoMode" data-photo-mode aria-describedby="photo-mode-help">
+							<select id="photo-mode" name="photoMode" data-photo-mode>
 								<option value="none">No photo</option>
 								<option value="upload">Upload from your device</option>
 								<option value="remote">Use a direct image URL</option>
 							</select>
-							<p class="field-help" id="photo-mode-help">Choose one JPEG, PNG or WebP up to 5 MB. Upload directly from your device or provide a direct HTTPS image link.</p>
 						</div>}
 						<div class="form-field field-wide" data-photo-url-field hidden>
 							<label for="photo-url">Photo URL <span class="optional">(optional)</span></label>
 							<input id="photo-url" name="photoUrl" type="url" inputmode="url" maxlength="500" placeholder="https://example.com/your-photo.jpg" aria-describedby="photo-url-help photo-url-error" />
-							<p class="field-help" id="photo-url-help">{'Use a direct HTTPS JPEG, PNG or WebP image up to 5 MB. We do not extract images from webpages.'}</p>
+							<p class="field-help" id="photo-url-help">{'Use a direct HTTPS JPEG, PNG or WebP image up to 5 MB.'}</p>
 							<p class="field-error" id="photo-url-error" data-error-for="photoUrl"></p>
 						</div>
 						{<div class="form-field field-wide" data-photo-controls>
@@ -138,7 +137,6 @@ const {siteKey=""}=Astro.props;
 							<button type="button" data-prepare-photo hidden>Prepare photo preview</button>
 							<p data-photo-status role="status" aria-live="polite">A photo is optional.</p>
 							<img data-photo-preview hidden alt="Processed private profile photo preview" referrerpolicy="no-referrer" style="max-width:100%;max-height:320px;object-fit:contain" />
-							<p>Review the processed private copy before submitting. Image metadata is removed. The photo becomes public only with your confirmed profile.</p>
 						</div>}
 					</div>
 				</section>
@@ -192,7 +190,6 @@ const {siteKey=""}=Astro.props;
 					<div class="section-heading">
 						<h2 id="submission-heading">Submission details</h2>
 						<p>Your email will not be added to your public profile. It may be used by administrators for follow-up if there are errors with your submission, or (optionally) to receive updates about new LARParts.com upgrades.</p>
-						<p>{'Your profile will publish only after you open the email and press Confirm publication.'} Opening the link alone will not publish it, and confirmation will not create an account or grant editing rights.</p>
 					</div>
 
 					<div class="form-field">
@@ -216,25 +213,14 @@ const {siteKey=""}=Astro.props;
 						<input id="company-website" name="companyWebsite" type="text" tabindex="-1" autocomplete="off" />
 					</div>
 
-					<div class="consent-field">
-						<input id="consent" name="consent" type="checkbox" required value="true" aria-describedby="consent-help consent-error" />
-						<div>
-							<label for="consent">I’m okay with submitting this profile <span aria-hidden="true">*</span></label>
-							<p id="consent-help">
-								I have permission to share this profile, its public information can appear in the directory,
-								and I own the submitted image or have permission to use it.
-							</p>
-							<p>{'An optional JPEG, PNG or WebP photo up to 5 MB can be uploaded or supplied as a direct HTTPS image link.'} A processed copy will be stored privately for preview, with metadata removed, and made public only when the profile is published.</p>
-							<p class="field-error" id="consent-error" data-error-for="consent"></p>
-						</div>
-					</div>
+
 				</section>
 
 				<div class="form-actions">
 					<button class="submit-button" type="submit" data-submit-button disabled>
 						<span data-submit-label>Submit profile</span>
 					</button>
-					<p>{'Check your email, then press Confirm publication. The link expires after 24 hours.'}</p>
+					<p>{'Check your email, then press Confirm submission. The link expires after 24 hours.'}</p>
 				</div>
 				{<>
 					<div data-bot-challenge></div>

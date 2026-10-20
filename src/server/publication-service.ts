@@ -32,7 +32,7 @@ const intentSchema=z.object({submission_id:z.uuid(),asset_id:z.uuid(),bucket:z.s
 const sourceSchema=z.object({bucket:z.string(),object_key:z.string(),visibility:z.literal('temporary'),processing_state:z.literal('processed'),byte_size:z.number(),width:z.number(),height:z.number(),content_type:z.literal('image/webp')});
 const claimSchema=z.object({state:z.literal('claimed'),submissionId:z.uuid(),intent:intentSchema,source:sourceSchema.nullable()});
 const resultSchema=z.object({state:z.enum(['published','processing','conflict']),artistId:z.string().optional()});
-const jobSchema=z.object({id:z.uuid(),submission_id:z.uuid(),kind:z.enum(['confirmation','administrator']),token_id:z.uuid().nullable(),lease_id:z.uuid(),deduplication_key:z.string(),payload:z.object({from:z.string(),to:z.array(z.email()),origin:z.url(),displayName:z.string(),artistId:z.string().optional()})});
+const jobSchema=z.object({id:z.uuid(),submission_id:z.uuid(),kind:z.enum(['confirmation','administrator']),token_id:z.uuid().nullable(),lease_id:z.uuid(),deduplication_key:z.string(),payload:z.object({from:z.string(),to:z.array(z.email()),origin:z.url(),displayName:z.string(),artistId:z.string().optional(),upgradeNotifications:z.boolean().optional()})});
 export type PublicationJob=z.infer<typeof jobSchema>;
 export type MailSender=(body:{from:string;to:string[];subject:string;text:string},key:string)=>Promise<void>;
 export function buildPublicationMail(config:PublicationConfig,job:PublicationJob){
@@ -42,10 +42,11 @@ export function buildPublicationMail(config:PublicationConfig,job:PublicationJob
     if(!job.token_id)throw new Error('Missing verification record');
     const token=verificationToken(config.tokenSecret,job.token_id);
     const link=`${job.payload.origin}/confirm-profile#${job.submission_id}.${token}`;
-    return {from:job.payload.from,to:job.payload.to,subject:'Confirm your LARParts profile',text:`This email address was used to submit a LARParts.com profile for ${job.payload.displayName}.\n\nPlease open this link and press 'Confirm publication' to add your profile to the website:\n${link}\n\nThe link expires in 24 hours. If you did not submit this profile, ignore this email.`};
+    return {from:job.payload.from,to:job.payload.to,subject:'Confirm your LARParts profile',text:`This email address was used to submit a LARParts.com profile for ${job.payload.displayName}.\n\nPlease open this link and press 'Confirm submission' to add your profile to the website:\n${link}\n\nThe link expires in 24 hours. If you did not submit this profile, ignore this email.`};
   }
   if(!job.payload.artistId)throw new Error('Missing public artist reference');
-  return {from:job.payload.from,to:job.payload.to,subject:`LARParts profile published: ${job.payload.displayName}`,text:`A new artist profile was added to the website!\n\nArtist: ${job.payload.displayName}\nPublished profile: ${job.payload.origin}/artists/${encodeURIComponent(job.payload.artistId)}/`};
+  const preference=job.payload.upgradeNotifications===true?'Yes':job.payload.upgradeNotifications===false?'No':'Not recorded in this notification';
+  return {from:job.payload.from,to:job.payload.to,subject:`LARParts profile published: ${job.payload.displayName}`,text:`A new artist profile was added to the website!\n\nArtist: ${job.payload.displayName}\nPublished profile: ${job.payload.origin}/artists/${encodeURIComponent(job.payload.artistId)}/\nLARParts upgrade email notifications opted in: ${preference}`};
 }
 
 export class PublicationService{

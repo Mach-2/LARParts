@@ -77,7 +77,6 @@ try{
     await page.evaluate(`(()=>{
       const values=${JSON.stringify({'display-name':name,kingdom:'Northern Lights','home-park':'Synthetic Park',skills:'Sewing, Weaving','submitter-email':emails[index]})};
       for(const [id,value]of Object.entries(values)){const field=document.getElementById(id);field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));}
-      document.querySelector('#consent').checked=true;
       const mode=document.querySelector('[data-photo-mode]');mode.value=${JSON.stringify(mode)};mode.dispatchEvent(new Event('change',{bubbles:true}));
     })()`);
     if(mode!=='none'){

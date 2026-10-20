@@ -29,7 +29,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
     element('[data-photo-upload-field]').hidden=mode.value!=='upload';
     element('[data-photo-url-field]').hidden=mode.value!=='remote';
     if(url.disabled){url.setCustomValidity('');url.removeAttribute('aria-invalid');element('[data-error-for="photoUrl"]').textContent='';}
-    photoStatus.textContent=mode.value==='none'?'A photo is optional.':'Prepare and review your private processed preview before submitting.';
+    photoStatus.textContent=mode.value==='none'?'A photo is optional.':'';
   }
   mode.addEventListener('change',photoChanged);file.addEventListener('change',photoChanged);url.addEventListener('input',photoChanged);
   prepare.addEventListener('click',async()=>{
@@ -48,7 +48,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
       image=prepared;
       if(!image)throw new Error('Choose a photo first.');
       preview.src=image.previewUrl;preview.hidden=false;prepare.textContent='Refresh private preview';
-      photoStatus.textContent='Review this processed private copy. You can change or remove it before submitting.';
+      photoStatus.textContent='';
     }catch(error){if(revision===photoRevision)photoStatus.textContent=error instanceof Error?error.message:'Photo preparation failed. Please try again.';}
     finally{setBusy(false);}
   });
@@ -77,7 +77,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
       }
       hooks.setState('submitting','Requesting confirmation','Please keep this page open while the request finishes.');
       await services.submitVerifiedProfile(pending,await bot('profile-submit'));
-      hooks.setState('success','Check your email','Open the confirmation email and press Confirm publication. Opening the link alone will not publish your profile.');
+      hooks.setState('success','Check your email','Open the confirmation email and press Confirm submission. Opening the link alone will not publish your profile.');
       button.hidden=true;actions.hidden=false;
     }catch(error){
       hooks.setState('server-error',pending?'Confirmation request not yet confirmed':'Submission not sent',error instanceof Error?error.message:'Please keep this page open and try again.');
@@ -97,7 +97,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
       if(result.state==='published'&&typeof result.artistId==='string'&&/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(result.artistId)){
         publishedLink.href=`/artists/${result.artistId}/`;publishedLink.hidden=false;resend.hidden=true;button.hidden=true;
         hooks.setState('success','Your profile is published','Use the link below to view your public profile.');
-      }else hooks.setState('success','Publication status',result.state==='publishing'?'Publication is in progress. Check again shortly.':result.state==='pending'?'Check your email and press Confirm publication.':'This submission is unavailable or needs assistance. Contact the directory administrator.');
+      }else hooks.setState('success','Publication status',result.state==='publishing'?'Publication is in progress. Check again shortly.':result.state==='pending'?'Check your email and press Confirm submission.':'This submission is unavailable or needs assistance. Contact the directory administrator.');
     }catch{hooks.setState('server-error','Status unavailable','Keep this page open and try again shortly.');}
     finally{setBusy(false);}
   });

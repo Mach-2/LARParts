@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added: Administrator publication emails include the saved upgrade-notification opt-in preference; migration 007 snapshots the private preference into notification jobs.
+
+- Changed: Simplify submission and confirmation wording, remove the separate submission-consent checkbox in favor of email confirmation, and restore What's Next to main's version.
+
 - Added: Safe server-only image-service initialization diagnostics that identify configuration stages and invalid variable names without logging credential values.
 
 - Fixed: Ignore stale photo preparation/preview results after changing or removing a photo, and stop submission if the selection changes during its final preview refresh.

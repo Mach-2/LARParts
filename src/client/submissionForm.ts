@@ -115,11 +115,6 @@ export function initSubmissionForm(){
 				}
 			}
 
-			function validateConsent() {
-				const field = requireElement<HTMLInputElement>("#consent");
-				setFieldError(field, field.checked ? "" : "Please confirm you have permission to submit this profile.");
-			}
-
 			function validateForm() {
 				kingdomSelect.setCustomValidity(
 					kingdomSelect.value ? "" : "Please choose your kingdom.",
@@ -142,7 +137,6 @@ export function initSubmissionForm(){
 					validateUrl(field);
 				}
 				validateList(skillsInput, "Skills", MAX_SKILLS);
-				validateConsent();
 				return form.checkValidity();
 			}
 
@@ -196,7 +190,8 @@ export function initSubmissionForm(){
 					},
 					submitterEmail: String(formData.get("submitterEmail") ?? "").trim(),
 					upgradeNotifications: formData.get("upgradeNotifications") === "true",
-					consent: formData.get("consent") === "true",
+					// Legacy API flag; publication still requires explicit email confirmation.
+					consent: true,
 					companyWebsite: String(formData.get("companyWebsite") ?? ""),
 				};
 			}
