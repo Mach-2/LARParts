@@ -19,9 +19,8 @@ do $$ declare s jsonb; begin
   begin
     perform public.publication_operation('confirm_claim','00000000-0000-4000-8000-000000000004',repeat('d',64),'{}');raise exception 'Wrong email token accepted';
   exception when raise_exception then if sqlerrm<>'Confirmation unavailable' then raise; end if; end;
-  begin
-    perform public.publication_operation('resend','00000000-0000-4000-8000-000000000004',repeat('a',64),'{}');raise exception 'Resend cooldown bypassed';
-  exception when raise_exception then if sqlerrm<>'Resend unavailable' then raise; end if; end;
+  s:=public.publication_operation('resend','00000000-0000-4000-8000-000000000004',repeat('a',64),'{}');
+  if s->>'state'<>'resend_cooldown' or (s->>'retryAfter')::integer not between 1 and 300 then raise exception 'Resend cooldown bypassed'; end if;
   s:=public.publication_operation('confirm_claim','00000000-0000-4000-8000-000000000004',repeat('c',64),'{"publishedBucket":"synthetic-published"}');
   if s->>'state'<>'claimed' then raise exception 'Confirmation claim failed'; end if;
   if public.publication_operation('confirm_claim','00000000-0000-4000-8000-000000000004',repeat('c',64),'{}')->>'state'<>'processing' then raise exception 'Concurrent worker lease allowed'; end if;

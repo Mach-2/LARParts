@@ -15,6 +15,7 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
   const actions=element('[data-confirmation-actions]'),resend=element<HTMLButtonElement>('[data-resend-confirmation]'),check=element<HTMLButtonElement>('[data-check-publication]');
   const publishedLink=element<HTMLAnchorElement>('[data-published-link]'),challenge=element('[data-bot-challenge]');
   let image:PreparedImage|null=null,pending:PendingSubmission|null=null,busy=false;
+  let accepted=false;
   let photoRevision=0;
   const bot=(action:'profile-image'|'profile-submit')=>services.turnstileToken(form.dataset.turnstileSitekey??'',challenge,action);
   function setBusy(value:boolean){
@@ -77,29 +78,29 @@ export function setupVerifiedSubmission(form:HTMLFormElement,hooks:Hooks,overrid
       }
       hooks.setState('submitting','Requesting confirmation','Please keep this page open while the request finishes.');
       await services.submitVerifiedProfile(pending,await bot('profile-submit'));
+      accepted=true;
       hooks.setState('success','Check your email','Open the confirmation email and press Confirm submission. Opening the link alone will not publish your profile.');
       button.hidden=true;actions.hidden=false;
     }catch(error){
-      hooks.setState('server-error',pending?'Confirmation request not yet confirmed':'Submission not sent',error instanceof Error?error.message:'Please keep this page open and try again.');
-      if(pending)actions.hidden=false;
+      hooks.setState('server-error','Submission request could not finish',error instanceof Error?error.message:'Please keep this page open and try again.');
     }finally{setBusy(false);}
   });
   resend.addEventListener('click',async()=>{
-    if(busy||!pending)return;setBusy(true);
+    if(busy||!pending||!accepted)return;setBusy(true);
     try{await services.resendProfileConfirmation(pending,await bot('profile-submit'));hooks.setState('success','Check your email','A new confirmation was requested if eligible. The previous link will no longer work. Please wait before requesting another.');}
-    catch{hooks.setState('server-error','Resend could not finish','Please wait a minute and try again. Keep this page open.');}
+    catch(error){hooks.setState('server-error','Resend could not finish',error instanceof Error?error.message:'Please keep this page open and try again.');}
     finally{setBusy(false);}
   });
   check.addEventListener('click',async()=>{
-    if(busy||!pending)return;setBusy(true);
+    if(busy||!pending||!accepted)return;setBusy(true);
     try{
       const result=await services.getSubmissionStatus(pending);
       if(result.state==='published'&&typeof result.artistId==='string'&&/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(result.artistId)){
         publishedLink.href=`/artists/${result.artistId}/`;publishedLink.hidden=false;resend.hidden=true;button.hidden=true;
         hooks.setState('success','Your profile is published','Use the link below to view your public profile.');
-      }else hooks.setState('success','Publication status',result.state==='publishing'?'Publication is in progress. Check again shortly.':result.state==='pending'?'Check your email and press Confirm submission.':'This submission is unavailable or needs assistance. Contact the directory administrator.');
+      }else hooks.setState('success','Submission status',result.state==='publishing'?'Publication is in progress. Check again shortly.':result.state==='pending'?'Check your email and press Confirm submission.':'This submission is unavailable or needs assistance. Contact the directory administrator.');
     }catch{hooks.setState('server-error','Status unavailable','Keep this page open and try again shortly.');}
     finally{setBusy(false);}
   });
-  photoChanged();setBusy(false);
+  actions.hidden=true;photoChanged();setBusy(false);
 }

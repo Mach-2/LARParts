@@ -1,6 +1,6 @@
 import { createHmac,randomBytes } from 'node:crypto';
 import { z } from 'zod';
-import { PublicationService,submissionSchema,type PublicationRpc } from './publication-service';
+import { PublicationService,ResendUnavailableError,submissionSchema,type PublicationRpc } from './publication-service';
 import { loadPublicationConfig,type PublicationConfig } from './publication-config';
 import {verifyTurnstile} from './turnstile';
 
@@ -10,7 +10,7 @@ const manage=z.object({action:z.enum(['status','resend']),submissionId:z.uuid(),
 const submit=z.object({action:z.literal('submit'),submission:submissionSchema,turnstileToken:z.string().min(1).max(2048)}).strict();
 type HandlerService=Pick<PublicationService,'submit'|'resend'|'status'|'confirm'|'deliver'>;
 export interface PublicationDependencies{config:PublicationConfig;rpc:PublicationRpc;service:HandlerService;verifyBot:(token:string,ip:string)=>Promise<boolean>}
-function json(body:unknown,status=200){return Response.json(body,{status,headers:{'cache-control':'no-store','referrer-policy':'no-referrer','x-content-type-options':'nosniff'}});}
+function json(body:unknown,status=200,retryAfter?:number){return Response.json(body,{status,headers:{'cache-control':'no-store','referrer-policy':'no-referrer','x-content-type-options':'nosniff',...(retryAfter?{'retry-after':String(retryAfter)}:{})}});}
 export async function handlePublicationRequest(request:Request,ip:string,deps:PublicationDependencies){
   if(request.method!=='POST')return json({error:'Use POST'},405);
   if(request.headers.get('origin')!==deps.config.origin || new URL(request.url).origin!==deps.config.origin || request.headers.get('sec-fetch-site')==='cross-site')return json({error:'Origin not permitted'},403);
@@ -24,15 +24,17 @@ export async function handlePublicationRequest(request:Request,ip:string,deps:Pu
     const data=parsed.data;
     const rate=async(scope:string,value:string,limit:number)=>{
       const fingerprint=createHmac('sha256',deps.config.backend.SUPABASE_SECRET_KEY).update(`${scope}:${value}`).digest('hex');
-      return z.object({allowed:z.boolean()}).parse(await deps.rpc('rate',undefined,undefined,{fingerprint,limit})).allowed;
+      return z.object({allowed:z.boolean(),retryAfter:z.number().int().min(1).max(3600).optional()}).parse(await deps.rpc('rate',undefined,undefined,{fingerprint,limit}));
     };
-    if(!await rate(`publication-${data.action}`,ip,data.action==='submit'?5:60))return json({error:'Too many requests; try later'},429);
+    const ipLimit=data.action==='submit'?5:60,ipRate=await rate(`publication-${data.action}`,ip,ipLimit);
+    if(!ipRate.allowed)return json({error:'Hourly request limit reached',code:'hourly_ip_limit',limit:ipLimit,retryAfter:ipRate.retryAfter},429,ipRate.retryAfter);
     if(data.action==='submit'){
       if(!await deps.verifyBot(data.turnstileToken,ip))return json({error:'Bot verification failed'},403);
-      if(!await rate('confirmation-mail',data.submission.submitterEmail,3))return json({error:'Too many confirmation requests; try later'},429);
+      const emailRate=await rate('confirmation-mail',data.submission.submitterEmail,3);
+      if(!emailRate.allowed)return json({error:'Hourly confirmation request limit reached',code:'hourly_email_limit',limit:3,retryAfter:emailRate.retryAfter},429,emailRate.retryAfter);
       const result=await deps.service.submit(data.submission);
       await deps.service.deliver(result.submissionId).catch(()=>{});
-      return json({submissionId:result.submissionId,state:result.state,message:'Check your email and explicitly confirm publication.'},202);
+      return json({submissionId:result.submissionId,state:result.state,message:'Check your email and confirm publication.'},202);
     }
     if(data.action==='confirm'){
       const result=await deps.service.confirm(data.submissionId,data.token);
@@ -48,7 +50,10 @@ export async function handlePublicationRequest(request:Request,ip:string,deps:Pu
       return json({message:'If eligible, a new confirmation is queued.'},202);
     }
     return json(await deps.service.status(data.submissionId,capability));
-  }catch{return json({error:'Request unavailable. Check your link or submission, or try again later.'},422);}
+  }catch(error){
+    if(error instanceof ResendUnavailableError)return json({error:'Confirmation resend unavailable',code:error.code,retryAfter:error.retryAfter},error.code==='resend_cooldown'?429:409,error.retryAfter);
+    return json({error:'Request unavailable. Check your link or submission, or try again later.'},422);
+  }
 }
 
 export function confirmationPage(method='GET'){

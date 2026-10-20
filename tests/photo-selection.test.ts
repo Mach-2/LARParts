@@ -19,7 +19,7 @@ class Control{
   removeAttribute(name:string){if(name==='src')this.src='';}
 }
 const photo:PreparedImage={sessionId:'12345678-1234-4234-8234-123456789abc',capability:'a'.repeat(43),assetId:'asset',previewUrl:'https://private.example/preview',expiresIn:60};
-function harness(){
+function harness(overrides:Parameters<typeof setupVerifiedSubmission>[2]={}){
   const controls=new Map<string,Control>();
   const get=(selector:string)=>{let control=controls.get(selector);if(!control){control=new Control();controls.set(selector,control);}return control;};
   const form=Object.assign(new Control(),{querySelector:get,querySelectorAll:()=>[]});
@@ -31,7 +31,7 @@ function harness(){
     makePayload:()=>({profile:{displayName:'Test Artist',kingdom:'Northern Lights',homePark:'Test Park',skills:['Sewing'],awards:[],contact:{}},submitterEmail:'test@example.invalid',consent:true,upgradeNotifications:false,companyWebsite:''}),
     setState:(state,_title,message)=>{if(state==='server-error')errors.push(message);},
   },{turnstileToken:async()=> 'synthetic',prepareProfileImage:()=>preparation.promise,refreshProfileImagePreview:()=>refresh.promise,
-    submitVerifiedProfile:async value=>{submissions.push(value);return{};}});
+    submitVerifiedProfile:async value=>{submissions.push(value);return{};},...overrides});
   return{get,form,preparation,refresh,submissions,errors};
 }
 
@@ -73,4 +73,19 @@ test('unchanged prepared selection is previewed and submitted',async()=>{
   assert.equal(h.get('[data-photo-preview]').src,photo.previewUrl);
   const running=h.form.dispatch('submit');h.refresh.resolve(photo);await running;
   assert.equal(h.submissions.length,1);assert.equal(h.submissions[0].image?.sessionId,photo.sessionId);
+});
+
+test('no-photo failure hides confirmation controls; successful retry reuses the same request',async()=>{
+  const requests:PendingSubmission[]=[];let managementCalls=0;
+  const h=harness({submitVerifiedProfile:async value=>{requests.push(value);if(requests.length===1)throw new Error('Rejected');return{};},
+    resendProfileConfirmation:async()=>{managementCalls++;return{};},getSubmissionStatus:async()=>{managementCalls++;return{state:'pending'};}});
+  h.get('[data-photo-mode]').value='none';h.get('[data-photo-mode]').dispatch('change');
+  await h.form.dispatch('submit');
+  assert.equal(h.get('[data-confirmation-actions]').hidden,true);
+  assert.equal(h.get('[data-submit-button]').hidden,false);
+  assert.equal(h.get('[data-submit-button]').disabled,false);
+  await h.get('[data-resend-confirmation]').dispatch('click');await h.get('[data-check-publication]').dispatch('click');
+  assert.equal(managementCalls,0);
+  await h.form.dispatch('submit');assert.equal(requests.length,2);assert.strictEqual(requests[0],requests[1]);assert.equal(requests[0].image,null);
+  assert.equal(h.get('[data-confirmation-actions]').hidden,false);assert.equal(h.get('[data-submit-button]').hidden,true);
 });

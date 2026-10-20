@@ -116,6 +116,51 @@ test('saved opt-in preference reaches administrator mail and stays out of public
   }finally{service.close();await db.close();}
 });
 
+test('resend feedback is authenticated, includes cooldown timing, and does not rotate rejected tokens',async()=>{
+  const {db,rpc}=await database();const service=new PublicationService(config,rpc,async()=>{});
+  try{
+    const input=fixture();await service.submit(input);
+    const request=(capability=input.capability)=>new Request(`${config.origin}/api/verified-profile`,{method:'POST',headers:{origin:config.origin,'content-type':'application/json',authorization:`Bearer ${capability}`},body:JSON.stringify({action:'resend',submissionId:input.requestId,turnstileToken:'synthetic'})});
+    const deps={config,rpc,service,verifyBot:async()=>true};
+    const early=await handlePublicationRequest(request(),'synthetic-ip',deps),body=await early.json();
+    assert.equal(early.status,429);assert.equal(body.code,'resend_cooldown');assert.ok(body.retryAfter>=1&&body.retryAfter<=300);
+    assert.equal(early.headers.get('retry-after'),String(body.retryAfter));
+    assert.equal((await db.query('select * from private.verification_tokens where revoked_at is null')).rows.length,1);
+    assert.equal((await db.query('select * from private.notification_jobs')).rows.length,1);
+    const denied=await handlePublicationRequest(request('b'.repeat(43)),'synthetic-ip',deps);
+    assert.equal(denied.status,422);assert.equal((await denied.json()).code,undefined);
+    await db.query('update private.submissions set resend_count=3 where id=$1',[input.requestId]);
+    const capped=await handlePublicationRequest(request(),'synthetic-ip',deps);
+    assert.equal(capped.status,409);assert.equal((await capped.json()).code,'resend_limit');
+  }finally{service.close();await db.close();}
+});
+
+test('hourly IP and email limits report scope and retry timing',async()=>{
+  for(const emailLimit of [false,true]){
+    let rates=0;
+    const deps={config,rpc:async()=>({allowed:emailLimit&&++rates===1,retryAfter:120}),service:{},verifyBot:async()=>true} as unknown as PublicationDependencies;
+    const response=await handlePublicationRequest(new Request(`${config.origin}/api/verified-profile`,{method:'POST',headers:{origin:config.origin,'content-type':'application/json'},body:JSON.stringify({action:'submit',submission:fixture(),turnstileToken:'synthetic'})}),'synthetic-ip',deps);
+    assert.equal(response.status,429);assert.equal(response.headers.get('retry-after'),'120');
+    const body=await response.json();assert.equal(body.code,emailLimit?'hourly_email_limit':'hourly_ip_limit');assert.equal(body.limit,emailLimit?3:5);
+  }
+});
+
+test('HTTP submission accepts no photo and queues confirmation without an image session',async()=>{
+  const {db,rpc}=await database();const sent:Array<{text:string}>=[];
+  const service=new PublicationService(config,rpc,async body=>{sent.push(body);});
+  try{
+    const input=fixture('No photo HTTP');
+    const response=await handlePublicationRequest(new Request(`${config.origin}/api/verified-profile`,{
+      method:'POST',headers:{origin:config.origin,'content-type':'application/json'},
+      body:JSON.stringify({action:'submit',submission:input,turnstileToken:'synthetic'}),
+    }),'127.0.0.1',{config,rpc,service,verifyBot:async()=>true});
+    assert.equal(response.status,202);assert.equal((await response.json()).state,'pending');
+    assert.equal((await db.query<{image_asset_id:string|null}>('select image_asset_id from private.submissions')).rows[0].image_asset_id,null);
+    assert.equal((await db.query('select * from private.image_sessions')).rows.length,0);
+    assert.equal(sent.length,1);assert.match(sent[0].text,/Confirm submission/);
+  }finally{service.close();await db.close();}
+});
+
 test('confirmation HTML only POSTs from a submit event, removes fragment, has CSP and GET makes no API calls',async()=>{
   const page=confirmationPage();const html=await page.text();assert.match(html,/addEventListener\('submit'/);assert.match(html,/history.replaceState/);assert.match(page.headers.get('content-security-policy')??'',/frame-ancestors 'none'/);assert.equal(page.headers.get('referrer-policy'),'no-referrer');assert.equal(confirmationPage('HEAD').status,200);
   let calls=0;const deps={config,rpc:async()=>{calls++;return{allowed:true};},service:{},verifyBot:async()=>false} as unknown as PublicationDependencies;

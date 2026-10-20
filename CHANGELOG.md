@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added: Clear resend cooldown, resend-count and hourly request-limit feedback with server-calculated retry timing.
+
+- Fixed: Keep resend/status controls hidden until a submission is accepted, preserve retry identity after errors, and explain rate-limit failures. Rename the status button to Check submission status.
+
 - Added: Administrator publication emails include the saved upgrade-notification opt-in preference; migration 007 snapshots the private preference into notification jobs.
 
 - Changed: Simplify submission and confirmation wording, remove the separate submission-consent checkbox in favor of email confirmation, and restore What's Next to main's version.

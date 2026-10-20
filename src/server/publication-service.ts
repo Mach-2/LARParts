@@ -15,6 +15,9 @@ export const submissionSchema=z.object({
 }).strict();
 export type VerifiedSubmission=z.infer<typeof submissionSchema>;
 export type PublicationRpc=(action:string,id?:string,hash?:string,data?:Record<string,unknown>)=>Promise<unknown>;
+export class ResendUnavailableError extends Error{
+  constructor(public readonly code:'resend_cooldown'|'resend_limit'|'resend_unavailable',public readonly retryAfter?:number){super('Confirmation resend unavailable');}
+}
 export function createPublicationRpc(config:PublicationConfig):PublicationRpc{
   return async(action,id,hash,data={})=>{
     const response=await fetch(new URL('/rest/v1/rpc/publication_operation',config.backend.SUPABASE_URL),{
@@ -64,7 +67,12 @@ export class PublicationService{
     const result=await this.rpc('submit',input.requestId,capabilityHash(input.capability),{...body,requestHash,...this.tokenRecord(),temporaryBucket:this.config.backend.R2_TEMPORARY_BUCKET,mail:this.mailContext([input.submitterEmail])});
     return z.object({state:z.string(),submissionId:z.uuid()}).parse(result);
   }
-  async resend(id:string,capability:string){return this.rpc('resend',id,capabilityHash(capability),{...this.tokenRecord(),mail:this.mailContext(this.config.administrators)});}
+  async resend(id:string,capability:string){
+    const result=z.object({state:z.enum(['pending','resend_cooldown','resend_limit','resend_unavailable']),retryAfter:z.number().int().min(1).max(300).optional()}).parse(
+      await this.rpc('resend',id,capabilityHash(capability),{...this.tokenRecord(),mail:this.mailContext(this.config.administrators)}));
+    if(result.state!=='pending')throw new ResendUnavailableError(result.state,result.retryAfter);
+    return result;
+  }
   async status(id:string,capability:string){return z.object({state:z.string(),artistId:z.string().nullable()}).parse(await this.rpc('status',id,capabilityHash(capability)));}
   async confirm(id:string,token:string){return this.finishClaim(await this.rpc('confirm_claim',id,capabilityHash(token),{publishedBucket:this.published.bucket}));}
   async recoverOne(){const claim=await this.rpc('recover_claim');return claim?this.finishClaim(claim):null;}
