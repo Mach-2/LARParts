@@ -3,7 +3,7 @@ import {
 	createGitHubAppJwt,
 	getGitHubConfig,
 	GitHubClient,
-} from "../netlify/functions/github-submission.mts";
+} from "../src/server/legacy/github-submission.mts";
 
 async function checkGitHubApp() {
 	console.log("1. Reading GitHub configuration...");

@@ -11,11 +11,11 @@ import {
 	queueGitHubSubmission,
 	SubmissionConflictError,
 	type ProposedSubmission,
-} from "./github-submission.mts";
+} from "../../src/server/legacy/github-submission.mts";
 import {
 	NotificationError,
 	sendAdministratorNotification,
-} from "./administrator-notification.mts";
+} from "../../src/server/legacy/administrator-notification.mts";
 
 export const MAX_REQUEST_BYTES = 64 * 1024;
 
@@ -256,7 +256,9 @@ export async function handleProfileSubmission(
 }
 
 export default function submitProfile(request: Request) {
-	return handleProfileSubmission(request);
+	// v1.0.1 uses email-confirmed publication. Keep the legacy implementation
+	// as rollback reference, but never accept new GitHub submissions here.
+	return jsonResponse({success:false,message:'This submission endpoint has retired. Please use /submit-profile.'},410);
 }
 
 export const config: Config = {

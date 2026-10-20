@@ -1,5 +1,5 @@
 import { createSign } from "node:crypto";
-import { artistProfileSchema, parseArtistFiles, type ArtistProfile } from "../../src/data/artistProfile";
+import { artistProfileSchema, parseArtistFiles, type ArtistProfile } from "../../data/artistProfile";
 
 const GITHUB_API_URL = "https://api.github.com";
 const ARTISTS_PATH = "src/data/artists";

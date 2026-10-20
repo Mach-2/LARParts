@@ -1,0 +1,5 @@
+---
+export const prerender=false;
+Astro.response.headers.set('Cache-Control','no-store');
+return Astro.redirect('/submit-profile',302);
+---

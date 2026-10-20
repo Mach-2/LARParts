@@ -1,0 +1,31 @@
+---
+import SiteHeader from './SiteHeader.astro';
+import ContactBar from './ContactBar.astro';
+import '../styles/theme.css';
+interface Props{status:404|503}
+const {status}=Astro.props;
+const title=status===404?'Page not found':'Directory temporarily unavailable';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/design-nib-solid.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex" />
+    <title>{title} | LARParts Directory</title>
+  </head>
+  <body>
+    <SiteHeader current="directory" />
+    <main class="page">
+      <h1>{title}</h1>
+      <p>{status===404?'This page is not available. The profile may no longer be published, or the address may be incorrect.':'We could not load the directory right now. Please try again shortly.'}</p>
+      <a href="/">Return to the directory</a>
+    </main>
+    <ContactBar />
+  </body>
+</html>
+<style>
+  :global(body){margin:0;font-family:var(--font-body);background:radial-gradient(circle at top left,var(--color-page-glow),transparent 36%),linear-gradient(180deg,var(--color-page-top) 0%,var(--color-page-bottom) 100%);color:var(--color-text)}
+  .page{max-width:1100px;margin:0 auto;padding:3rem 1.25rem 4rem}
+  h1{font-size:clamp(2rem,4vw,3.5rem)}p{line-height:1.7;color:var(--color-muted)}a{color:var(--color-primary)}a:focus-visible{outline:3px solid var(--color-accent);outline-offset:4px}
+</style>

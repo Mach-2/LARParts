@@ -5,9 +5,9 @@ import {
 	handleProfileSubmission,
 	prepareSubmission,
 } from "../netlify/functions/submit-profile.mts";
-import type { AdministratorNotification } from "../netlify/functions/administrator-notification.mts";
+import type { AdministratorNotification } from "../src/server/legacy/administrator-notification.mts";
 import { profileSubmissionSchema } from "../src/data/profileSubmission";
-import { SubmissionConflictError } from "../netlify/functions/github-submission.mts";
+import { SubmissionConflictError } from "../src/server/legacy/github-submission.mts";
 
 const endpoint = "http://localhost/.netlify/functions/submit-profile";
 

@@ -1,10 +1,33 @@
 # LARParts directory
 
-An Astro static site for browsing and submitting Amtgard artist profiles.
+An Astro site for browsing and submitting Amtgard artist profiles.
+
+## v1.0.1 development
+
+The live JSON/GitHub submission workflow remains active until cutover. Database
+profiles, R2 photos, and email-confirmed publication are implemented on
+`release/v1.0.1`. See the [workflow audit](docs/release-workflow-audit.md) for
+current release behavior and the remaining production rollout gates.
+
+Step 5 now renders public directory pages from Supabase on each request on this
+release branch. Informational pages remain static. The deployed v1 site and
+legacy GitHub submission workflow remain in place until cutover. See
+[live rendering operations](docs/live-rendering-operations.md) for runtime variables,
+HTTP validation and remaining deployment gates. JSON profiles are retained for
+the migration source and emergency fallback; live routes do not read them.
+Step 6 has now rehearsed all 25 public profiles in testing, including the merged
+staging additions. See [migration operations](docs/legacy-migration-operations.md)
+for import/verification commands, photo follow-ups and private-history handling.
+
+See [the release runbook](docs/release-v1.0.1.md) for environment setup,
+baseline provenance, release gates, and rollback requirements. Implement one step
+at a time and pause after writing its tutorial in the workspace's `summary_notes/`
+directory. This directory and the workspace-root `AGENTS.md` are outside the
+`webpage/` Git repository and must be retained separately.
 
 ## Requirements
 
-- Node.js 22.12 or newer
+- Node.js 22.22 or newer (dependency maintenance validated with 24.22.0)
 - npm
 
 Install project dependencies:
@@ -15,7 +38,7 @@ npm install
 
 ## Astro development
 
-To run the static Astro site without Netlify Functions:
+To run Astro locally (public pages require the testing environment in `.env`):
 
 ```powershell
 npm run dev
@@ -95,11 +118,11 @@ browser.
 
 ## Branch workflow
 
-Artist records live in `src/data/artists/<artist-id>.json`, with one public
-profile per file. The filename must match the record's `id`. Astro loads and
-validates these files during static generation; there is no committed aggregate
-directory or shared index to update. Duplicate IDs and case-insensitive
-name/kingdom combinations fail validation.
+The deployed v1 workflow stores artist records in
+`src/data/artists/<artist-id>.json`, with one public profile per file. The filename
+must match the record's `id`. Validation rejects duplicate IDs and case-insensitive
+name/kingdom combinations. These files remain unchanged on the v1.0.1 release
+branch, whose new runtime pages use published Supabase records instead.
 
 Each submission creates only its artist file, based on a pinned staging commit.
 The function checks that commit's profiles for duplicates before opening a PR.
@@ -108,8 +131,9 @@ function is deployed. Existing PRs that modify `directory.json` need to be
 converted separately before approval.
 
 Run `npm test` and `npm run astro -- check` to verify changes, then run
-`npm run build` locally to confirm static generation. No new environment
-variables or GitHub App permissions are needed for this storage format.
+`npm run build` locally to confirm Netlify packaging. Codex must not run builds
+in its sandbox. The new public runtime variables are documented in the operations
+guide; GitHub App permissions for the legacy submission format are unchanged.
 
 - `main` is the production branch.
 - `staging` contains approved profiles waiting for a production release.
@@ -135,3 +159,13 @@ second command:
 ```bash
 git switch --track origin/staging
 ```
+
+## Release submission flow
+
+The v1.0.1 release branch uses `/submit-profile` for device upload or direct-image
+URL input and explicit email-confirmed publication. Both submission flags must
+be enabled with testing configuration; unavailable configuration returns 503.
+The old preview URL redirects to this form. The GitHub-writing endpoint returns
+410 on this branch; production on main retains v1 until cutover.
+See [validation operations](docs/release-validation-operations.md)
+for local browser rehearsal, Netlify branch configuration and outstanding gates.

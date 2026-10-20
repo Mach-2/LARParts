@@ -1,27 +1,54 @@
 {
   "name": "webpage",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-		"check:github": "node --env-file=.env --import tsx scripts/check-github-app.ts",
-    "test": "tsx --test tests/*.test.ts"
+    "check:github": "node --env-file=.env --import tsx scripts/check-github-app.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "test:database": "node --env-file=.env --import tsx scripts/test-database.ts",
+    "test:storage": "node --env-file=.env --import tsx scripts/test-storage.ts",
+    "test:images": "node --env-file=.env --import tsx scripts/test-image-ingestion.ts",
+    "test:publication": "node --env-file=.env --import tsx scripts/test-verified-publication.ts",
+    "test:rendering": "node --env-file=.env --import tsx scripts/test-live-rendering.ts",
+    "import:legacy": "node --env-file=.env --import tsx scripts/import-legacy.ts",
+    "test:migration": "node --env-file=.env --import tsx scripts/test-legacy-import.ts",
+    "verify:migration": "node --env-file=.env --import tsx scripts/verify-legacy-import.ts",
+    "test:browser": "node --env-file=.env --import tsx scripts/test-browser-flow.ts",
+    "validate:artifacts": "node --import tsx scripts/check-release-artifacts.ts"
   },
   "dependencies": {
-    "astro": "^6.1.9",
+    "@astrojs/netlify": "^8.2.10",
+    "@aws-sdk/client-s3": "^3.1152.0",
+    "@aws-sdk/s3-request-presigner": "^3.1152.0",
+    "astro": "^7.4.0",
+    "ipaddr.js": "^2.5.0",
+    "postgres": "^3.4.9",
+    "sharp": "^0.35.5",
+    "undici": "^8.12.2",
     "zod": "^4.3.6"
+  },
+  "overrides": {
+    "ipx": {
+      "sharp": "$sharp"
+    }
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@electric-sql/pglite": "^0.5.10",
     "@netlify/functions": "^5.1.2",
     "@types/node": "^24.10.1",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "yauzl": "3.4.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ArtistProfile } from "../../src/data/artistProfile";
+import type { ArtistProfile } from "../../data/artistProfile";
 
 const RESEND_EMAIL_ENDPOINT = "https://api.resend.com/emails";
 

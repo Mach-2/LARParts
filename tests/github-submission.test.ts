@@ -8,7 +8,7 @@ import {
 	queueGitHubSubmission,
 	type GitHubSubmissionConfig,
 	type ProposedSubmission,
-} from "../netlify/functions/github-submission.mts";
+} from "../src/server/legacy/github-submission.mts";
 import { type ArtistProfile } from "../src/data/artistProfile";
 
 const privateKey = generateKeyPairSync("rsa", { modulusLength: 2048 })
