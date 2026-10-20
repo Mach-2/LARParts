@@ -1,20 +1,31 @@
 import type {ArtistProfile} from '../data/artistProfile';
 import {kingdomDirectory,kingdomSlug} from '../data/kingdomDirectory';
-import {loadPublicReadConfig,type PublicReadConfig} from './config';
-import {readPublishedArtist,readPublishedArtists} from './artists';
+import {loadPublicReadConfig,BackendConfigurationError,type PublicReadConfig} from './config';
+import {readPublishedArtist,readPublishedArtists,PublishedArtistReadError} from './artists';
 
 export type PageFailure={ok:false;status:404|503};
 type PageData<T>={ok:true;status:200;data:T}|PageFailure;
 export interface PublicPageDependencies{config?:PublicReadConfig;env?:NodeJS.ProcessEnv;fetcher?:typeof fetch}
 const config=(deps:PublicPageDependencies)=>deps.config??loadPublicReadConfig(deps.env);
+function reportFailure(stage:string,error:unknown){
+  // Deliberately exclude raw errors/stacks, URLs, headers, keys and returned rows.
+  console.error('Public directory unavailable',{
+    stage,
+    ...(error instanceof BackendConfigurationError?{code:error.code,fields:error.fields}:
+      error instanceof PublishedArtistReadError?{code:error.code,...(error.httpStatus?{httpStatus:error.httpStatus}:{})}:
+        {code:'published_data_invalid'}),
+  });
+}
 export async function directoryPage(deps:PublicPageDependencies={}):Promise<PageData<ArtistProfile[]>>{
-  try{return{ok:true,status:200,data:await readPublishedArtists(config(deps),deps.fetcher)};}
-  catch{return{ok:false,status:503};}
+  let stage='configuration';
+  try{const c=config(deps);stage='published_read';return{ok:true,status:200,data:await readPublishedArtists(c,deps.fetcher)};}
+  catch(error){reportFailure(stage,error);return{ok:false,status:503};}
 }
 export async function artistPage(id:string|undefined,deps:PublicPageDependencies={}):Promise<PageData<ArtistProfile>>{
   if(!id||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id))return{ok:false,status:404};
-  try{const artist=await readPublishedArtist(config(deps),id,deps.fetcher);return artist?{ok:true,status:200,data:artist}:{ok:false,status:404};}
-  catch{return{ok:false,status:503};}
+  let stage='configuration';
+  try{const c=config(deps);stage='published_read';const artist=await readPublishedArtist(c,id,deps.fetcher);return artist?{ok:true,status:200,data:artist}:{ok:false,status:404};}
+  catch(error){reportFailure(stage,error);return{ok:false,status:503};}
 }
 export async function kingdomPage(slug:string|undefined,deps:PublicPageDependencies={}):Promise<PageData<{kingdom:string;artists:ArtistProfile[]}>>{
   if(!slug||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))return{ok:false,status:404};

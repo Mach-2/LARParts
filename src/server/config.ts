@@ -45,14 +45,15 @@ export type PublicReadConfig=z.infer<typeof readSchema>;
 export const PUBLIC_READ_ENV_NAMES=['APP_ENV','CONTEXT','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','R2_PUBLIC_BASE_URL','BACKEND_TESTING_SUPABASE_REF','BACKEND_PRODUCTION_SUPABASE_REF'] as const;
 export function loadPublicReadConfig(env:NodeJS.ProcessEnv=process.env):PublicReadConfig{
   const parsed=readSchema.safeParse(env);
-  if(!parsed.success)throw new Error('Invalid public directory configuration');
+  if(!parsed.success)throw new BackendConfigurationError('Invalid public directory configuration','invalid_public_read_fields',
+    [...new Set(parsed.error.issues.map(issue=>String(issue.path[0])))]);
   const c=parsed.data;
   if(c.BACKEND_TESTING_SUPABASE_REF===c.BACKEND_PRODUCTION_SUPABASE_REF ||
     (c.CONTEXT && c.CONTEXT!=='production' && c.APP_ENV!=='testing') ||
-    (c.CONTEXT==='production' && c.APP_ENV!=='production'))throw new Error('Public directory environment mismatch');
+    (c.CONTEXT==='production' && c.APP_ENV!=='production'))throw new BackendConfigurationError('Public directory environment mismatch','public_read_environment_mismatch',['APP_ENV','CONTEXT','BACKEND_TESTING_SUPABASE_REF','BACKEND_PRODUCTION_SUPABASE_REF']);
   const ref=c.APP_ENV==='testing'?c.BACKEND_TESTING_SUPABASE_REF:c.BACKEND_PRODUCTION_SUPABASE_REF;
   if(new URL(c.SUPABASE_URL).hostname!==`${ref}.supabase.co` ||
-    (c.APP_ENV==='production' && /(^|\.)r2\.dev$/.test(new URL(c.R2_PUBLIC_BASE_URL).hostname)))throw new Error('Public directory resource mismatch');
+    (c.APP_ENV==='production' && /(^|\.)r2\.dev$/.test(new URL(c.R2_PUBLIC_BASE_URL).hostname)))throw new BackendConfigurationError('Public directory resource mismatch','public_read_resource_mismatch',['SUPABASE_URL','R2_PUBLIC_BASE_URL','BACKEND_TESTING_SUPABASE_REF','BACKEND_PRODUCTION_SUPABASE_REF']);
   return c;
 }
 

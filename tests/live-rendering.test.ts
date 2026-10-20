@@ -55,3 +55,32 @@ test('successful, missing and unavailable pages prevent all shared/browser HTML 
     assert.equal(response.headers.get('retry-after'),status===503?'60':null);
   }
 });
+
+test('directory diagnostics distinguish config, HTTP, network and data failures without logging private values',async()=>{
+  const logs:unknown[][]=[],original=console.error;
+  console.error=(...args:unknown[])=>{logs.push(args);};
+  try{
+    const cases=[
+      {deps:{env:{...env,SUPABASE_URL:'https://testref.supabase.co/rest/v1/'}},expected:{stage:'configuration',code:'invalid_public_read_fields',fields:['SUPABASE_URL']}},
+      {deps:{env:{...env,SUPABASE_PUBLISHABLE_KEY:undefined}},expected:{stage:'configuration',code:'invalid_public_read_fields',fields:['SUPABASE_PUBLISHABLE_KEY']}},
+      {deps:{env:{...env,SUPABASE_URL:'https://prodref.supabase.co'}},expected:{stage:'configuration',code:'public_read_resource_mismatch',fields:['SUPABASE_URL','R2_PUBLIC_BASE_URL','BACKEND_TESTING_SUPABASE_REF','BACKEND_PRODUCTION_SUPABASE_REF']}},
+      ...[401,403,404,503].map(status=>({deps:{config,fetcher:async()=>new Response('private-provider-message',{status})},expected:{stage:'published_read',code:'database_http_error',httpStatus:status}})),
+      {deps:{config,fetcher:async()=>{throw new Error('private-network-message');}},expected:{stage:'published_read',code:'database_network_or_timeout'}},
+      {deps:{config,fetcher:async()=>new Response('private-invalid-json')},expected:{stage:'published_read',code:'database_invalid_json'}},
+      {deps:{config,fetcher:async()=>Response.json([{email:'private-person@example.invalid'}])},expected:{stage:'published_read',code:'published_data_invalid'}},
+    ];
+    for(const scenario of cases){
+      logs.length=0;
+      assert.deepEqual(await directoryPage(scenario.deps),{ok:false,status:503});
+      assert.deepEqual(logs,[['Public directory unavailable',scenario.expected]]);
+      const text=JSON.stringify(logs);
+      for(const forbidden of ['private-',config.SUPABASE_PUBLISHABLE_KEY,config.SUPABASE_URL])assert.ok(!text.includes(forbidden));
+    }
+    logs.length=0;
+    assert.equal((await artistPage('stable-id',{config,fetcher:async()=>new Response('private-provider-message',{status:401})})).status,503);
+    assert.deepEqual(logs,[['Public directory unavailable',{stage:'published_read',code:'database_http_error',httpStatus:401}]]);
+    logs.length=0;
+    assert.equal((await artistPage('missing-id',{config,fetcher:async()=>Response.json([])})).status,404);
+    assert.equal(logs.length,0);
+  }finally{console.error=original;}
+});

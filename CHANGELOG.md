@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Add server-only directory failure diagnostics to distinguish invalid runtime configuration, database HTTP errors and network/data failures without exposing private values.
+
 ## 2026-10-19 — v1.0.1
 
 ### Added
