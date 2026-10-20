@@ -1,0 +1,311 @@
+---
+import SiteHeader from "./SiteHeader.astro";
+import ContactBar from "./ContactBar.astro";
+import type { ArtistProfile } from "../data/artistProfile";
+import { kingdomDirectory } from "../data/kingdomDirectory";
+
+import "../styles/theme.css";
+
+interface Props { artists: ArtistProfile[] }
+const { artists } = Astro.props;
+const kingdoms = kingdomDirectory(artists);
+
+const kingdomEntries = kingdoms.filter((entry) => !entry.isPrincipality);
+const principalityEntries = kingdoms.filter((entry) => entry.isPrincipality);
+
+const artistCount = artists.length;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/design-nib-solid.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>LARParts Directory</title>
+	</head>
+	<body>
+		<SiteHeader current="directory" />
+
+		<main class="page">
+			<section class="hero">
+				<h1>LARParts Directory</h1>
+				<p class="intro">
+					Browse all artists in the directory, or select a kingdom to view local artists.
+				</p>
+			</section>
+
+			<a class="featured-card" href="/artists/">
+				<div class="featured-mark" aria-hidden="true">A</div>
+				<div class="featured-content">
+					<p class="card-label">Full Directory</p>
+					<h2>All Artists</h2>
+					<p>{artistCount} {artistCount === 1 ? "artist" : "artists"}</p>
+				</div>
+			</a>
+
+			<section class="directory-section" aria-labelledby="kingdoms-heading">
+				<h2 id="kingdoms-heading">Kingdoms</h2>
+				<div class="kingdom-grid">
+					{
+					kingdomEntries.map((kingdom) => (
+						<a class="kingdom-card" href={kingdom.href}>
+							<div class="kingdom-mark">
+								{kingdom.image ? (
+									<img src={kingdom.image} alt="" loading="lazy" />
+								) : (
+									<span>{kingdom.name.charAt(0)}</span>
+								)}
+							</div>
+
+							<div class="kingdom-content">
+								<h2>{kingdom.fullName}</h2>
+								<p>
+									{kingdom.artistCount}{" "}
+									{kingdom.artistCount === 1 ? "artist" : "artists"}
+								</p>
+							</div>
+						</a>
+					))
+					}
+				</div>
+			</section>
+
+			<section class="directory-section" aria-labelledby="principalities-heading">
+				<h2 id="principalities-heading">Principalities</h2>
+				<div class="kingdom-grid">
+					{
+					principalityEntries.map((kingdom) => (
+						<a class="kingdom-card" href={kingdom.href}>
+							<div class="kingdom-mark">
+								{kingdom.image ? (
+									<img src={kingdom.image} alt="" loading="lazy" />
+								) : (
+									<span>{kingdom.name.charAt(0)}</span>
+								)}
+							</div>
+
+							<div class="kingdom-content">
+								<h2>{kingdom.fullName}</h2>
+								<p>
+									{kingdom.artistCount} {" "}
+									{kingdom.artistCount === 1 ? "artist" : "artists"}
+								</p>
+							</div>
+						</a>
+					))
+					}
+				</div>
+			</section>
+		</main>
+		<ContactBar />
+	</body>
+</html>
+
+<style>
+	:global(body) {
+		margin: 0;
+		font-family: var(--font-body);
+		background:
+			radial-gradient(circle at top left, var(--color-page-glow), transparent 36%),
+			linear-gradient(180deg, var(--color-page-top) 0%, var(--color-page-bottom) 100%);
+		color: var(--color-text);
+	}
+
+	.page {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 4rem;
+	}
+
+	.hero {
+		margin-bottom: 2rem;
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.25rem, 4vw, 4rem);
+	}
+
+	.intro {
+		max-width: 45rem;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.kingdom-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1.5rem;
+		max-width: 1200px;
+	}
+
+	.directory-section + .directory-section {
+		margin-top: 2.5rem;
+	}
+
+	.directory-section > h2 {
+		margin: 0 0 1rem;
+		font-size: 1.6rem;
+	}
+
+	.featured-card {
+		display: grid;
+		grid-template-columns: 112px minmax(0, 1fr);
+		align-items: center;
+		min-height: 164px;
+		margin-bottom: 1.5rem;
+		padding: 1.4rem;
+		color: inherit;
+		text-decoration: none;
+		background: var(--color-card-strong);
+		border: 2px solid var(--color-primary);
+		border-radius: 8px;
+		box-shadow: 0 14px 34px var(--shadow-featured);
+		transition:
+			transform 160ms ease,
+			box-shadow 160ms ease,
+			border-color 160ms ease;
+	}
+
+	.featured-card:hover,
+	.featured-card:focus-visible,
+	.kingdom-card:hover,
+	.kingdom-card:focus-visible {
+		transform: translateY(-3px);
+		border-color: var(--color-accent);
+		box-shadow: 0 16px 36px var(--shadow-hover);
+	}
+
+	.featured-card:focus-visible,
+	.kingdom-card:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: 4px;
+	}
+
+	.featured-mark {
+		width: 88px;
+		height: 104px;
+		display: grid;
+		place-items: center;
+		font-size: 3rem;
+		font-weight: 700;
+		color: var(--color-primary);
+		background: var(--color-mark-bg);
+		border: 1px solid var(--color-mark-border);
+		border-radius: 8px;
+	}
+
+	.featured-content {
+		min-width: 0;
+	}
+
+	.featured-content h2 {
+		margin: 0 0 0.45rem;
+		font-size: clamp(1.8rem, 3vw, 2.5rem);
+		line-height: 1.1;
+	}
+
+	.featured-content p:last-child {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 1.05rem;
+	}
+
+	.kingdom-card {
+		display: grid;
+		grid-template-columns: 80px minmax(0, 1fr);
+		align-items: center;
+		min-height: 120px;
+		padding: 1rem;
+		color: inherit;
+		text-decoration: none;
+		background: var(--color-card-soft);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		box-shadow: 0 10px 30px var(--shadow-card);
+		transition:
+			transform 160ms ease,
+			box-shadow 160ms ease,
+			border-color 160ms ease;
+	}
+
+	.kingdom-mark {
+		width: 68px;
+		height: 76px;
+		display: grid;
+		place-items: center;
+	}
+
+	.kingdom-mark img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	.kingdom-mark span {
+		font-size: 2.25rem;
+		font-weight: 700;
+		color: var(--color-primary);
+	}
+
+	.kingdom-content {
+		min-width: 0;
+	}
+
+	.card-label {
+		margin: 0 0 0.4rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.75rem;
+		color: var(--color-accent-dark);
+	}
+
+	.kingdom-content h2 {
+		margin: 0 0 0.45rem;
+		font-size: 1.3rem;
+		line-height: 1.15;
+	}
+
+	.kingdom-content p:last-child {
+		margin: 0;
+		color: var(--color-muted);
+		font-size: 0.98rem;
+	}
+
+	@media (max-width: 960px) {
+		.kingdom-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 640px) {
+		.kingdom-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 560px) {
+		.featured-card {
+			grid-template-columns: 64px minmax(0, 1fr);
+			padding: 1rem;
+		}
+
+		.featured-mark {
+			width: 52px;
+			height: 64px;
+			font-size: 2.25rem;
+		}
+
+		.kingdom-card {
+			grid-template-columns: 64px minmax(0, 1fr);
+			padding: 1rem;
+		}
+
+		.kingdom-mark {
+			width: 52px;
+			height: 64px;
+		}
+	}
+</style>

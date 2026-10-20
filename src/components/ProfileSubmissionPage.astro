@@ -1,0 +1,568 @@
+---
+import SiteHeader from "./SiteHeader.astro";
+import ContactBar from "./ContactBar.astro";
+import { artistTitles } from "../data/artistTitles";
+import kingdoms from "../data/kingdoms.json";
+import "../styles/theme.css";
+interface Props { siteKey?: string }
+const {siteKey=""}=Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/design-nib-solid.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="referrer" content="no-referrer" />
+		<title>Submit your profile | LARParts Directory</title>
+	</head>
+	<body>
+		<SiteHeader current="submit" />
+
+		<main class="page">
+			<section class="hero">
+				<p class="eyebrow">Join the Directory</p>
+				<h1>Submit your profile</h1>
+				<p class="intro">
+					{'Tell us about your art. Your profile will publish after you explicitly confirm it by email.'}
+				</p>
+			</section>
+
+			<form
+				class="profile-form"
+					action="/api/verified-profile"
+				method="post"
+				data-profile-form
+					data-verified="true"
+					data-turnstile-sitekey={siteKey}
+				novalidate
+			>
+				<div class="form-status" data-form-status data-state="ready" role="status" aria-live="polite" tabindex="-1">
+					<strong data-status-title>Ready to submit</strong>
+					<span data-status-message>Required fields are marked with an asterisk.</span>
+				</div>
+
+				<div class="error-summary" data-error-summary role="alert" tabindex="-1" hidden>
+					<h2>Please check your submission</h2>
+					<ul data-error-list></ul>
+				</div>
+
+				<section class="form-section" aria-labelledby="profile-heading">
+					<div class="section-heading">
+						<h2 id="profile-heading">Public profile</h2>
+						<p>This information may be shown in the artist directory.</p>
+					</div>
+
+					<div class="field-grid">
+						<div class="form-field field-wide">
+							<label for="display-name">Display name <span aria-hidden="true">*</span></label>
+							<input id="display-name" name="displayName" type="text" required minlength="1" maxlength="100" autocomplete="nickname" aria-describedby="display-name-help display-name-error" />
+							<p class="field-help" id="display-name-help">The name visitors should see on your profile.</p>
+							<p class="field-error" id="display-name-error" data-error-for="displayName"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="kingdom">Kingdom <span aria-hidden="true">*</span></label>
+							<select id="kingdom" name="kingdom" required aria-describedby="kingdom-error">
+								<option value="">Choose a kingdom</option>
+								{kingdoms.map((kingdom) => <option value={kingdom.name}>{kingdom.name}</option>)}
+							</select>
+							<p class="field-error" id="kingdom-error" data-error-for="kingdom"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="home-park">Home park <span aria-hidden="true">*</span></label>
+							<input id="home-park" name="homePark" type="text" required minlength="1" maxlength="100" aria-describedby="home-park-error" />
+							<p class="field-error" id="home-park-error" data-error-for="homePark"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="skills">Skills <span aria-hidden="true">*</span></label>
+							<textarea id="skills" name="skills" required maxlength="600" rows="3" aria-describedby="skills-help skills-error"></textarea>
+							<p class="field-help" id="skills-help">Separate skills with commas. Add up to 20.</p>
+							<p class="field-error" id="skills-error" data-error-for="skills"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<fieldset class="checkbox-group" aria-describedby="awards-help awards-error">
+								<legend>Awards and titles <span class="optional">(optional)</span></legend>
+								<p class="field-help" id="awards-help">Select any titles that apply.</p>
+								<div class="checkbox-options">
+									{artistTitles.map((title) => (
+										<label class="checkbox-option">
+											<input name="awards" type="checkbox" value={title} />
+											<span>{title}</span>
+										</label>
+									))}
+								</div>
+								<p class="field-error" id="awards-error" data-error-for="awards"></p>
+							</fieldset>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="member-since">Member since <span class="optional">(optional)</span></label>
+							<input id="member-since" name="memberSince" type="text" maxlength="100" placeholder="For example: 2020" aria-describedby="member-since-help member-since-error" />
+							<p class="field-help" id="member-since-help">What year did you join Amtgard?</p>
+							<p class="field-error" id="member-since-error" data-error-for="memberSince"></p>
+						</div>
+
+						<div class="form-field field-wide">
+							<label for="biography">Short biography <span class="optional">(optional)</span></label>
+							<textarea id="biography" name="biography" maxlength="500" rows="5" aria-describedby="biography-help biography-error"></textarea>
+							<p class="field-help" id="biography-help">Up to 500 characters.</p>
+							<p class="field-error" id="biography-error" data-error-for="biography"></p>
+						</div>
+
+						{<div class="form-field field-wide">
+							<label for="photo-mode">Profile photo <span class="optional">(optional)</span></label>
+							<select id="photo-mode" name="photoMode" data-photo-mode aria-describedby="photo-mode-help">
+								<option value="none">No photo</option>
+								<option value="upload">Upload from your device</option>
+								<option value="remote">Use a direct image URL</option>
+							</select>
+							<p class="field-help" id="photo-mode-help">Choose one JPEG, PNG or WebP up to 5 MB. Upload directly from your device or provide a direct HTTPS image link.</p>
+						</div>}
+						<div class="form-field field-wide" data-photo-url-field hidden>
+							<label for="photo-url">Photo URL <span class="optional">(optional)</span></label>
+							<input id="photo-url" name="photoUrl" type="url" inputmode="url" maxlength="500" placeholder="https://example.com/your-photo.jpg" aria-describedby="photo-url-help photo-url-error" />
+							<p class="field-help" id="photo-url-help">{'Use a direct HTTPS JPEG, PNG or WebP image up to 5 MB. We do not extract images from webpages.'}</p>
+							<p class="field-error" id="photo-url-error" data-error-for="photoUrl"></p>
+						</div>
+						{<div class="form-field field-wide" data-photo-controls>
+							<div class="form-field" data-photo-upload-field hidden>
+							<label for="photo-upload">Choose a JPEG, PNG or WebP up to 5 MB</label>
+							<input id="photo-upload" name="photoUpload" type="file" accept="image/jpeg,image/png,image/webp" data-photo-upload disabled />
+							</div>
+							<button type="button" data-prepare-photo hidden>Prepare photo preview</button>
+							<p data-photo-status role="status" aria-live="polite">A photo is optional.</p>
+							<img data-photo-preview hidden alt="Processed private profile photo preview" referrerpolicy="no-referrer" style="max-width:100%;max-height:320px;object-fit:contain" />
+							<p>Review the processed private copy before submitting. Image metadata is removed. The photo becomes public only with your confirmed profile.</p>
+						</div>}
+					</div>
+				</section>
+
+				<section class="form-section" aria-labelledby="contact-heading">
+					<div class="section-heading">
+						<h2 id="contact-heading">Public contact links</h2>
+						<p>All are optional. Only add links you’re happy to share publicly.</p>
+					</div>
+
+					<div class="field-grid">
+						<div class="form-field">
+							<label for="website">Website</label>
+							<input id="website" name="website" type="url" inputmode="url" maxlength="500" placeholder="https://example.com" aria-describedby="website-error" />
+							<p class="field-error" id="website-error" data-error-for="website"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="instagram">Instagram</label>
+							<input id="instagram" name="instagram" type="url" inputmode="url" maxlength="500" placeholder="https://instagram.com/yourname" aria-describedby="instagram-error" />
+							<p class="field-error" id="instagram-error" data-error-for="instagram"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="facebook">Facebook</label>
+							<input id="facebook" name="facebook" type="url" inputmode="url" maxlength="500" placeholder="https://facebook.com/yourpage" aria-describedby="facebook-error" />
+							<p class="field-error" id="facebook-error" data-error-for="facebook"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="discord">Discord</label>
+							<input id="discord" name="discord" type="url" inputmode="url" maxlength="500" placeholder="https://discord.gg/example" aria-describedby="discord-error" />
+							<p class="field-error" id="discord-error" data-error-for="discord"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="tiktok">TikTok</label>
+							<input id="tiktok" name="tiktok" type="url" inputmode="url" maxlength="500" placeholder="https://tiktok.com/@yourname" aria-describedby="tiktok-error" />
+							<p class="field-error" id="tiktok-error" data-error-for="tiktok"></p>
+						</div>
+
+						<div class="form-field">
+							<label for="other-contact">Other public link</label>
+							<input id="other-contact" name="other" type="url" inputmode="url" maxlength="500" placeholder="https://example.com/profile" aria-describedby="other-contact-error" />
+							<p class="field-error" id="other-contact-error" data-error-for="other"></p>
+						</div>
+					</div>
+				</section>
+
+				<section class="form-section" aria-labelledby="submission-heading">
+					<div class="section-heading">
+						<h2 id="submission-heading">Submission details</h2>
+						<p>Your email will not be added to your public profile. It may be used by administrators for follow-up if there are errors with your submission, or (optionally) to receive updates about new LARParts.com upgrades.</p>
+						<p>{'Your profile will publish only after you open the email and press Confirm publication.'} Opening the link alone will not publish it, and confirmation will not create an account or grant editing rights.</p>
+					</div>
+
+					<div class="form-field">
+						<label for="submitter-email">Your email address <span aria-hidden="true">*</span></label>
+						<input id="submitter-email" name="submitterEmail" type="email" required maxlength="254" autocomplete="email" aria-describedby="submitter-email-help submitter-email-error" />
+						<p class="field-error" id="submitter-email-error" data-error-for="submitterEmail"></p>
+					</div>
+
+					<div class="consent-field">
+						<input id="upgrade-notifications" name="upgradeNotifications" type="checkbox" value="true" aria-describedby="upgrade-notifications-help" />
+						<div>
+							<label for="upgrade-notifications">Notify me about future LARParts upgrades</label>
+							<p id="upgrade-notifications-help">
+								Optional: LARParts may email me when new versions of the website are released.
+							</p>
+						</div>
+					</div>
+
+					<div class="honeypot" aria-hidden="true">
+						<label for="company-website">Leave this field blank</label>
+						<input id="company-website" name="companyWebsite" type="text" tabindex="-1" autocomplete="off" />
+					</div>
+
+					<div class="consent-field">
+						<input id="consent" name="consent" type="checkbox" required value="true" aria-describedby="consent-help consent-error" />
+						<div>
+							<label for="consent">I’m okay with submitting this profile <span aria-hidden="true">*</span></label>
+							<p id="consent-help">
+								I have permission to share this profile, its public information can appear in the directory,
+								and I own the submitted image or have permission to use it.
+							</p>
+							<p>{'An optional JPEG, PNG or WebP photo up to 5 MB can be uploaded or supplied as a direct HTTPS image link.'} A processed copy will be stored privately for preview, with metadata removed, and made public only when the profile is published.</p>
+							<p class="field-error" id="consent-error" data-error-for="consent"></p>
+						</div>
+					</div>
+				</section>
+
+				<div class="form-actions">
+					<button class="submit-button" type="submit" data-submit-button disabled>
+						<span data-submit-label>Submit profile</span>
+					</button>
+					<p>{'Check your email, then press Confirm publication. The link expires after 24 hours.'}</p>
+				</div>
+				{<>
+					<div data-bot-challenge></div>
+					<div data-confirmation-actions hidden>
+						<button type="button" data-resend-confirmation>Resend confirmation</button>
+						<button type="button" data-check-publication>Check publication status</button>
+						<a data-published-link hidden>View your published profile</a>
+						<p>Keep this page open for retry and resend controls. These controls do not grant future editing rights.</p>
+					</div>
+					<noscript>JavaScript is required to prepare photos and request email confirmation.</noscript>
+				</>}
+			</form>
+		</main>
+		<ContactBar message="Need to make a change to an existing profile? Contact us to request any changes at" />
+
+		<script>
+			import {initSubmissionForm} from '../client/submissionForm';
+			initSubmissionForm();
+		</script>
+	</body>
+</html>
+
+<style>
+	[hidden] { display: none !important; }
+	:global(body) {
+		margin: 0;
+		font-family: var(--font-body);
+		background:
+			radial-gradient(circle at top left, var(--color-page-glow), transparent 36%),
+			linear-gradient(180deg, var(--color-page-top) 0%, var(--color-page-bottom) 100%);
+		color: var(--color-text);
+	}
+
+	.page {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 4rem;
+	}
+
+	.hero {
+		margin-bottom: 2rem;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.85rem;
+		color: var(--color-accent-dark);
+	}
+
+	h1 {
+		margin: 0;
+		font-size: clamp(2.25rem, 4vw, 4rem);
+	}
+
+	.intro {
+		max-width: 45rem;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		color: var(--color-muted);
+	}
+
+	.profile-form {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.form-status,
+	.error-summary,
+	.form-section,
+	:global(.success-panel) {
+		padding: 1.25rem;
+		background: var(--color-card-soft);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		box-shadow: 0 10px 30px var(--shadow-card);
+	}
+
+	.form-status {
+		display: grid;
+		gap: 0.25rem;
+		border-left: 5px solid var(--color-accent);
+	}
+
+	.form-status[data-state="submitting"] {
+		border-left-color: var(--color-primary);
+	}
+
+	.form-status[data-state="validation-error"],
+	.form-status[data-state="server-error"],
+	.error-summary {
+		border-left: 5px solid #9b2c2c;
+	}
+
+	.form-status span,
+	.section-heading p,
+	.field-help,
+	.form-actions p,
+	.consent-field p,
+	:global(.success-panel p) {
+		color: var(--color-muted);
+		line-height: 1.5;
+	}
+
+	.error-summary h2,
+	.form-section h2,
+	:global(.success-panel h2) {
+		margin: 0;
+		font-size: 1.4rem;
+	}
+
+	.error-summary ul {
+		margin: 0.75rem 0 0;
+		padding-left: 1.25rem;
+	}
+
+	.error-summary a {
+		color: #7a1f1f;
+	}
+
+	.form-section {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.section-heading p {
+		margin: 0.4rem 0 0;
+	}
+
+	.field-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.1rem;
+	}
+
+	.field-wide {
+		grid-column: 1 / -1;
+	}
+
+	.form-field {
+		display: grid;
+		gap: 0.35rem;
+		align-content: start;
+	}
+
+	.form-field label,
+	.checkbox-group legend,
+	.consent-field label {
+		font-weight: 700;
+		color: var(--color-primary);
+	}
+
+	.checkbox-group {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		display: grid;
+		gap: 0.6rem;
+	}
+
+	.checkbox-group legend {
+		padding: 0;
+	}
+
+	.checkbox-options {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+		justify-items: start;
+	}
+
+	.checkbox-option {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: center;
+		gap: 0.65rem;
+		padding: 0.7rem 0.8rem;
+		background: #fffffb;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		color: var(--color-text);
+		font-weight: 400;
+		width: min(100%, 18rem);
+		max-width: 100%;
+	}
+
+	.checkbox-option input {
+		width: 1.1rem;
+		height: 1.1rem;
+		margin: 0;
+		accent-color: var(--color-primary);
+	}
+
+	.checkbox-option:has(input:focus-visible) {
+		outline: 3px solid rgba(111, 143, 79, 0.3);
+		outline-offset: 2px;
+		border-color: var(--color-accent);
+	}
+
+	.optional {
+		font-weight: 400;
+		color: var(--color-muted);
+	}
+
+	.form-field input,
+	.form-field select,
+	.form-field textarea {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 0.7rem 0.8rem;
+		font: inherit;
+		color: var(--color-text);
+		background: #fffffb;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+	}
+
+	.form-field textarea {
+		resize: vertical;
+	}
+
+	.form-field input:focus,
+	.form-field select:focus,
+	.form-field textarea:focus,
+	.consent-field input:focus,
+	.error-summary:focus,
+	.form-status:focus,
+	:global(.success-panel:focus) {
+		outline: 3px solid rgba(111, 143, 79, 0.3);
+		outline-offset: 2px;
+		border-color: var(--color-accent);
+	}
+
+	.form-field input[aria-invalid="true"],
+	.form-field select[aria-invalid="true"],
+	.form-field textarea[aria-invalid="true"] {
+		border-color: #9b2c2c;
+	}
+
+	.field-help,
+	.field-error {
+		margin: 0;
+		font-size: 0.9rem;
+	}
+
+	.field-error {
+		min-height: 1.25em;
+		color: #7a1f1f;
+	}
+
+	.honeypot {
+		position: absolute;
+		left: -10000px;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	}
+
+	.consent-field {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: 0.7rem;
+		align-items: start;
+	}
+
+	.consent-field input {
+		width: 1.2rem;
+		height: 1.2rem;
+		margin: 0.15rem 0 0;
+		accent-color: var(--color-primary);
+	}
+
+	.consent-field p {
+		margin: 0.35rem 0 0;
+	}
+
+	.form-actions {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.submit-button {
+		min-height: 3rem;
+		padding: 0.75rem 1.2rem;
+		font: inherit;
+		font-weight: 700;
+		color: #fffffb;
+		background: var(--color-primary);
+		border: 1px solid var(--color-primary);
+		border-radius: 8px;
+		cursor: pointer;
+	}
+
+	.submit-button:hover,
+	.submit-button:focus-visible {
+		background: var(--color-accent-dark);
+		outline: 3px solid rgba(111, 143, 79, 0.3);
+		outline-offset: 3px;
+	}
+
+	.submit-button:disabled {
+		opacity: 0.7;
+		cursor: wait;
+	}
+
+	.form-actions p {
+		margin: 0;
+	}
+
+	:global(.success-panel) {
+		border-left: 5px solid var(--color-primary);
+	}
+
+	:global(.success-panel p) {
+		margin: 0.6rem 0 0;
+	}
+
+	@media (max-width: 640px) {
+		.field-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.field-wide {
+			grid-column: auto;
+		}
+
+	}
+</style>

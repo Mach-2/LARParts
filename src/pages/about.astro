@@ -2,6 +2,7 @@
 import SiteHeader from "../components/SiteHeader.astro";
 import ContactBar from "../components/ContactBar.astro";
 import "../styles/theme.css";
+export const prerender = true;
 ---
 
 <html lang="en">
@@ -51,6 +52,12 @@ import "../styles/theme.css";
 				</p>
 
 
+			</section>
+			<section class="content-panel" aria-labelledby="submission-privacy-heading">
+				<h2 id="submission-privacy-heading">Submission privacy</h2>
+				<p>Only the profile details and public contact links you choose to share appear in the directory. Your submission email is not part of your public profile.</p>
+				<p>The email-confirmed submission process keeps your email, consent and confirmation records private. It stores a processed copy of your optional photo, removes image metadata and lets you preview that private copy before publication. Abandoned temporary photos will be removed automatically.</p>
+				<p>You need to press Confirm publication after opening the email link. Confirmation publishes the profile without administrator approval, and does not create an account or give access to future profile edits.</p>
 			</section>
 		</main>
 		<ContactBar />
