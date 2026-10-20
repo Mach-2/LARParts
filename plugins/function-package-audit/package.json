@@ -1,1 +1,1 @@
-{"name":"netlify-plugin-larparts-function-audit","version":"1.0.0","private":true,"type":"module"}
+{"name":"netlify-plugin-larparts-function-audit","version":"1.0.0","private":true,"type":"module","main":"./index.mjs"}

@@ -4,8 +4,17 @@ import {mkdtemp,writeFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {crc32} from 'node:zlib';
+import {createRequire} from 'node:module';
 import {auditFunctionPackages,inspectFunctionZip,expectedFunctions} from '../scripts/function-package-audit.mjs';
 import {onPostBuild} from '../plugins/function-package-audit/index.mjs';
+
+test('Netlify can resolve the local plugin directory to its ESM entry point',async()=>{
+  const require=createRequire(import.meta.url);
+  const entry=require.resolve('../plugins/function-package-audit');
+  assert.ok(entry.endsWith('index.mjs'));
+  const plugin=await import(new URL('../plugins/function-package-audit/index.mjs',import.meta.url).href);
+  assert.equal(typeof plugin.onPostBuild,'function');
+});
 
 function storedZip(entries:Record<string,string|Buffer>){
   const local:Buffer[]=[],central:Buffer[]=[];let offset=0;
