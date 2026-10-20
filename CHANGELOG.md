@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed: Move legacy GitHub/email helper modules outside Netlify function discovery.
+- Added: Post-bundling inspection of final Netlify function ZIPs, with private-data/tooling checks, Linux native dependency checks and per-package hashes.
+
 - Added: Clear resend cooldown, resend-count and hourly request-limit feedback with server-calculated retry timing.
 
 - Fixed: Keep resend/status controls hidden until a submission is accepted, preserve retry identity after errors, and explain rate-limit failures. Rename the status button to Check submission status.

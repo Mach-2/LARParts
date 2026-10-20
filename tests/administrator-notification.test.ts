@@ -4,7 +4,7 @@ import {
 	buildNotificationText,
 	NotificationError,
 	sendAdministratorNotification,
-} from "../netlify/functions/administrator-notification.mts";
+} from "../src/server/legacy/administrator-notification.mts";
 import type { ArtistProfile } from "../src/data/artistProfile";
 
 const artist: ArtistProfile = {

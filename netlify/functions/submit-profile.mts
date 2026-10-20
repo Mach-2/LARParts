@@ -11,11 +11,11 @@ import {
 	queueGitHubSubmission,
 	SubmissionConflictError,
 	type ProposedSubmission,
-} from "./github-submission.mts";
+} from "../../src/server/legacy/github-submission.mts";
 import {
 	NotificationError,
 	sendAdministratorNotification,
-} from "./administrator-notification.mts";
+} from "../../src/server/legacy/administrator-notification.mts";
 
 export const MAX_REQUEST_BYTES = 64 * 1024;
 
