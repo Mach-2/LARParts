@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Fixed
-
-- Add server-only directory failure diagnostics to distinguish invalid runtime configuration, database HTTP errors and network/data failures without exposing private values.
-
 ## 2026-10-19 — v1.0.1
 
 ### Added
@@ -23,6 +17,12 @@
 ### Removed
 
 - GitHub PR submission workflow, replaced by direct publication after explicit email confirmation.
+
+### Fixed
+
+- Add server-only directory failure diagnostics to distinguish invalid runtime configuration, database HTTP errors and network/data failures without exposing private values.
+
+- Add missing directory information for Rivermoor, Northreach, and Westmarch (sorry Rivermoor, Northreach, and Westmarch!!)
 
 ## 2026-10-13 — v1.0.0
 

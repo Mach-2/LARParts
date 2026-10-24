@@ -74,6 +74,11 @@
     "image": "/photos/NL_Heraldry.png"
   },
   {
+    "name": "Northreach",
+    "fullName": "The Kingdom of Northreach",
+    "image": "/photos/NR_Heraldry.png"
+  },
+  {
     "name": "Polaris", 
     "fullName": "The Kingdom of Polaris",
     "image": "/photos/PL_Heraldry.jpg"
@@ -82,6 +87,11 @@
     "name": "Rising Winds",
     "fullName": "The Kingdom of the Rising Winds",
     "image": "/photos/RW_Heraldry.jpg"
+  },
+  {
+    "name": "Rivermoor",
+    "fullName": "The Empire of Rivermoor",
+    "image": "/photos/RM_Heraldry.png"
   },
   {
     "name": "Tal Dagore",
@@ -97,6 +107,11 @@
     "name": "Wetlands",
     "fullName": "The Kingdom of the Wetlands",
     "image": "/photos/WL_Heraldry.png"
+  },
+  {
+    "name": "Westmarch",
+    "fullName": "The Kingdom of Westmarch",
+    "image": "/photos/WM_Heraldry.png"
   },
   {
     "name": "Winter's Edge",
